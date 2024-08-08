@@ -283,7 +283,8 @@ module Azure::Storage::Common
       def is_url
         Proc.new do |i|
           i = "http://" + i unless i =~ /\Ahttps?:\/\//
-          i =~ URI.regexp(["http", "https"])
+
+          i =~ URI::DEFAULT_PARSER.make_regexp(["http", "https"])
         end
       end
 
@@ -319,7 +320,7 @@ module Azure::Storage::Common
           storage_dns_suffix: is_url,
           default_endpoints_protocol: lambda { |i| ["http", "https"].include? i.downcase },
           use_path_style_uri: is_true,
-          signer: lambda { |i| i.is_a? Azure::Core::Auth::Signer} 
+          signer: lambda { |i| i.is_a? Azure::Core::Auth::Signer}
         }
 
         valid_options = required + at_least_one + only_one + optional

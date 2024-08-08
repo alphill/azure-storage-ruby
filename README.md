@@ -16,7 +16,7 @@ This project provides Ruby packages that makes it easy to access and manage Micr
 * [Queues](https://github.com/azure/azure-storage-ruby/tree/master/queue)
 * [Files](https://github.com/azure/azure-storage-ruby/tree/master/file)
 
-Note: 
+Note:
 
 * x64 Ruby for Windows is known to have some compatibility issues.
 * Each service gems depends on gem nokogiri. For Ruby version lower than 2.2, please install the compatible nokogiri before trying to install azure-storage.
@@ -44,5 +44,10 @@ If you encounter any bugs with the library please file an issue in the [Issues](
 * [Azure Storage Client Library for Android](http://github.com/azure/azure-storage-android)
 * [Azure Storage Data Movement Library](https://github.com/Azure/azure-storage-net-data-movement)
 
-# Code of Conduct 
+# Code of Conduct
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+# Testing
+```ruby
+ bundle exec rake test:unit --trace
+ ```
