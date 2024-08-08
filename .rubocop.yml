@@ -1,5 +1,13 @@
+inherit_from: .rubocop_todo.yml
+
 inherit_gem:
   ssstyle: rubocop.yml
 
 AllCops:
   TargetRubyVersion: 3.2.4
+
+Rails:
+  Enabled: false
+
+Style/HashEachMethods:
+  Enabled: false
