@@ -28,14 +28,18 @@ require "date"
 require_relative "./lib/azure/storage/blob/version"
 
 Gem::Specification.new do |s|
-  s.name        = "azure-storage-blob"
+  s.name        = "sss-azure-blob"
   s.version     = Azure::Storage::Blob::Version
-  s.authors     = ["Microsoft Corporation"]
-  s.email       = "ascl@microsoft.com"
-  s.description = "Microsoft Azure Storage Blob Client Library for Ruby"
+  s.authors     = ["Microsoft Corporation", 'alphill']
+  spec.authors  = ['alphill']
+  spec.email    = ['allison.phillips@secondsightsolutions.com']
+  s.description = "Fork of Microsoft Azure Storage Blob Client Library for Ruby"
   s.summary     = "Official Ruby client library to consume Azure Storage Blob service"
-  s.homepage    = "http://github.com/azure/azure-storage-ruby"
-  s.license     = "MIT"
+  s.homepage    = "http://github.com/secondsightsolutions/azure-storage-ruby"
+  s.required_ruby_version = '>= 3.2.1'
+  s.metadata['rubygems_mfa_required'] = 'true'
+  # NOTE: GH rubygems packages also require the env var BUNDLE_GEM__PUSH_KEY=github, which sets gem.push_key
+  s.metadata['allowed_push_host'] = 'https://rubygems.pkg.github.com/secondsightsolutions'
   s.files       = `git ls-files ./lib/azure/storage/blob/`.split("\n") << "./lib/azure/storage/blob.rb"
 
   s.required_ruby_version = ">= 2.3.0"

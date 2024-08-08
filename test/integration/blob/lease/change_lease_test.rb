@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #

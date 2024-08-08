@@ -1,0 +1,49 @@
+# RESOURCES
+# https://github.com/actions/checkout/blob/main/README.md#push-a-commit-using-the-built-in-token
+
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: Version Bump
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          # - major
+
+jobs:
+  version_bump:
+    name: Push version bump
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Check out current repository
+        uses: actions/checkout@v4
+      - name: Set up Ruby (version in .ruby_version)
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          cache-version: 1
+      - name: Install Gems, Commit Version Bump, and Push
+        run: |
+          bundle config set --local deployment 'false'
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin master
+          bundle exec gem bump ssstyle -v ${{ github.event.inputs.version_bump }} --branch --color
+          bundle install
+          git add Gemfile.lock
+          git commit --amend --no-edit
+          git push origin $(git branch --show-current) -u origin/master -f
+          echo "gh pr merge $(gh pr create --base master --fill --no-maintainer-edit) --auto -r -d --repo $GITHUB_REPOSITORY"
+
+        env:
+          GH_TOKEN: ${{ github.token }}

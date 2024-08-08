@@ -34,12 +34,13 @@ source "https://rubygems.org" do
   gem "minitest",            "~> 5", :require => false
   gem "minitest-reporters",  "~> 1", :require => false
   gem "mocha",               "~> 2.0", :require => false
+  gem 'pry', group: [:development, :test]
   gem "rake",                "~> 13.0", :require => false
   gem "timecop",             "~> 0.7", :require => false
   gem "yard",                "~> 0.9", ">= 0.9.11", :require => false
   gem "coveralls",           require: false
 
-  group :test do
-    gem 'pry'
+  source 'https://rubygems.pkg.github.com/secondsightsolutions' do
+    gem 'ssstyle', group: [:development, :test]
   end
 end

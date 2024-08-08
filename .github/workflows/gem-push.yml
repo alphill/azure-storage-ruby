@@ -1,0 +1,50 @@
+# REFERENCES:
+# github.com/rubygems/rubygems
+# - bundler/lib/bundler/gem_helper.rb
+name: Push release to Gem Host
+
+on:
+  push:
+    paths:
+      - common/lib/azure/core/version.rb
+      - blob/lib/azure/storage/blob/version.rb
+      - file/lib/azure/storage/file/version.rb
+      - queue/lib/azure/storage/queue/version.rb
+      - table/lib/azure/storage/table/version.rb
+      - common/lib/azure/storage/common/version.rb
+    branches:
+      - master
+
+jobs:
+  build_and_release:
+    name: Build + Publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Check out current repository
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+      - name: Set up Ruby (version in .ruby_version)
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          cache-version: 1
+      - name: Install Gems
+        run: bundle install
+      - name: Build and Publish
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          bundle config https://rubygems.pkg.github.com/secondsightsolutions ${{ secrets.GITHUB_TOKEN }}
+          bundle exec rake release
+          git pull --rebase origin master
+          gh release create $(git tag --sort=version:refname --merged | tail -1 ) --generate-notes --latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Sets the --key arg for gem push
+          BUNDLE_GEM__PUSH_KEY: github
+          GEM_HOST_API_KEY: "Bearer ${{ github.token }}"

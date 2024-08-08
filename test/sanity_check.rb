@@ -1,3 +1,4 @@
+# frozen_string_literal: true
   require "azure/storage/common"
   require "azure/storage/blob"
   require "azure/storage/table"
