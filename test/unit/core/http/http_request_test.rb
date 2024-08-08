@@ -52,11 +52,11 @@ describe Azure::Core::Http::HttpRequest do
     end
 
     it 'should have overridden the value of x-ms-version' do
-      subject.headers['x-ms-version'].must_equal '123'
+      _(subject.headers['x-ms-version']).must_equal '123'
     end
 
     it 'should have added in the blah = something header' do
-      subject.headers['blah'].must_equal 'something'
+      _(subject.headers['blah']).must_equal 'something'
     end
 
   end
@@ -69,15 +69,15 @@ describe Azure::Core::Http::HttpRequest do
       end
 
       it 'sets the default Content-Type header' do
-        subject.headers['Content-Type'].must_equal 'application/atom+xml; charset=utf-8'
+        _(subject.headers['Content-Type']).must_equal 'application/atom+xml; charset=utf-8'
       end
 
       it 'sets the Content-Length header' do
-        subject.headers['Content-Length'].must_equal '4054'
+        _(subject.headers['Content-Length']).must_equal '4054'
       end
 
       it 'sets the Content-MD5 header to a Base64 encoded representation of the MD5 hash of the body' do
-        subject.headers['Content-MD5'].must_equal 'nxTCAVCgA9fOTeV8KY8Pug=='
+        _(subject.headers['Content-MD5']).must_equal 'nxTCAVCgA9fOTeV8KY8Pug=='
       end
     end
 
@@ -91,15 +91,15 @@ describe Azure::Core::Http::HttpRequest do
       end
 
       it 'sets the default Content-Type header' do
-        subject.headers['Content-Type'].must_equal 'application/atom+xml; charset=utf-8'
+        _(subject.headers['Content-Type']).must_equal 'application/atom+xml; charset=utf-8'
       end
 
       it 'sets the Content-Length header' do
-        subject.headers['Content-Length'].must_equal '4054'
+        _(subject.headers['Content-Length']).must_equal '4054'
       end
 
       it 'sets the Content-MD5 header to a Base64 encoded representation of the MD5 hash of the body' do
-        subject.headers['Content-MD5'].must_equal 'nxTCAVCgA9fOTeV8KY8Pug=='
+        _(subject.headers['Content-MD5']).must_equal 'nxTCAVCgA9fOTeV8KY8Pug=='
       end
     end
 
@@ -109,15 +109,15 @@ describe Azure::Core::Http::HttpRequest do
       end
 
       it 'sets the default Content-Type header' do
-        subject.headers['Content-Type'].must_equal 'application/atom+xml; charset=utf-8'
+        _(subject.headers['Content-Type']).must_equal 'application/atom+xml; charset=utf-8'
       end
 
       it 'sets the Content-Length header' do
-        subject.headers['Content-Length'].must_equal '7'
+        _(subject.headers['Content-Length']).must_equal '7'
       end
 
       it 'sets the Content-MD5 header to a Base64 encoded representation of the MD5 hash of the body' do
-        subject.headers['Content-MD5'].must_equal 'PNeJy7qyzV4XUoBBHkVu0g=='
+        _(subject.headers['Content-MD5']).must_equal 'PNeJy7qyzV4XUoBBHkVu0g=='
       end
     end
 
@@ -128,15 +128,15 @@ describe Azure::Core::Http::HttpRequest do
       end
 
       it 'sets the default Content-Type header' do
-        subject.headers['Content-Type'].must_equal 'application/atom+xml; charset=utf-8'
+        _(subject.headers['Content-Type']).must_equal 'application/atom+xml; charset=utf-8'
       end
 
       it 'sets the Content-Length header' do
-        subject.headers['Content-Length'].must_equal '7'
+        _(subject.headers['Content-Length']).must_equal '7'
       end
 
       it 'sets the Content-MD5 header to a Base64 encoded representation of the MD5 hash of the body' do
-        subject.headers['Content-MD5'].must_equal 'PNeJy7qyzV4XUoBBHkVu0g=='
+        _(subject.headers['Content-MD5']).must_equal 'PNeJy7qyzV4XUoBBHkVu0g=='
       end
     end
   end
@@ -146,10 +146,8 @@ describe Azure::Core::Http::HttpRequest do
       Azure::Core::Http::HttpRequest.new(:get, uri)
     end
 
-    it 'leaves the Content-Type, Content-Length, and Content-MD5 headers blank' do
-      subject.headers['Content-Length'].must_equal '0'
-      subject.headers['Content-MD5'].must_be_nil
-    end
+    it { _(subject.headers['Content-Length']).must_equal '0' }
+    it { assert_nil(subject.headers['Content-MD5']) }
   end
 
   describe '#call' do
@@ -177,7 +175,7 @@ describe Azure::Core::Http::HttpRequest do
       end
 
       it 'should return a response' do
-        subject.call.body.must_equal(body)
+        _(subject.call.body).must_equal(body)
       end
     end
 
@@ -194,7 +192,7 @@ describe Azure::Core::Http::HttpRequest do
       end
 
       it 'should return a response' do
-       -> { subject.call }.must_raise(Azure::Core::Http::HTTPError)
+       _{ subject.call }.must_raise(Azure::Core::Http::HTTPError)
       end
     end
   end

@@ -19,12 +19,12 @@ describe Azure::Core::Auth::Signer do
   subject { Azure::Core::Auth::Signer.new "YWNjZXNzLWtleQ==" }
 
   it "decodes the base64 encoded access_key" do
-    subject.access_key.must_equal "access-key"
+    _(subject.access_key).must_equal "access-key"
   end
 
   describe "sign" do
     it "creates a signature for the body, as a base64 encoded string, which represents a HMAC hash using the access_key" do
-      subject.sign("body").must_equal "iuUxVhs1E7PeSNx/90ViyJNO24160qYpoWeCcOsnMoM="
+      _(subject.sign("body")).must_equal "iuUxVhs1E7PeSNx/90ViyJNO24160qYpoWeCcOsnMoM="
     end
   end
 end

@@ -134,7 +134,7 @@ describe Azure::Storage::Blob::BlobService do
       it "modifies the URI query parameters when provided a :prefix value" do
         query = { "prefix" => "pre" }
         local_call_options = { prefix: "pre" }.merge options
-        
+
         subject.expects(:containers_uri).with(query, local_call_options).returns(uri)
         subject.expects(:call).with(:get, uri, nil, {}, local_call_options).returns(response)
         subject.list_containers local_call_options
@@ -143,7 +143,7 @@ describe Azure::Storage::Blob::BlobService do
       it "modifies the URI query parameters when provided a :marker value" do
         query = { "marker" => "mark" }
         local_call_options = { marker: "mark" }.merge options
-        
+
         subject.expects(:containers_uri).with(query, local_call_options).returns(uri)
         subject.expects(:call).with(:get, uri, nil, {}, local_call_options).returns(response)
         subject.list_containers local_call_options
@@ -170,7 +170,7 @@ describe Azure::Storage::Blob::BlobService do
       it "modifies the URI query parameters when provided a :timeout value" do
         query = { "timeout" => "37" }
         local_call_options = { timeout: 37 }.merge options
-        
+
         subject.expects(:containers_uri).with(query, local_call_options).returns(uri)
         subject.expects(:call).with(:get, uri, nil, {}, local_call_options).returns(response)
         subject.list_containers local_call_options
@@ -282,7 +282,7 @@ describe Azure::Storage::Blob::BlobService do
 
       it "returns nil on success" do
         result = subject.delete_container container_name
-        _(result).must_equal nil
+        assert_nil(result)
       end
     end
 
@@ -539,7 +539,7 @@ describe Azure::Storage::Blob::BlobService do
 
       it "returns nil on success" do
         result = subject.set_container_metadata container_name, container_metadata
-        _(result).must_equal nil
+        assert_nil(result)
       end
     end
 
@@ -1164,7 +1164,7 @@ describe Azure::Storage::Blob::BlobService do
 
         it "returns nil on success" do
           result = subject.commit_blob_blocks container_name, blob_name, block_list
-          _(result).must_equal nil
+          assert_nil(result)
         end
 
         describe "when the options Hash is used" do
@@ -1465,7 +1465,7 @@ describe Azure::Storage::Blob::BlobService do
         }
 
         it "resizes the page blob" do
-          subject.expects(:call).with(verb, uri, nil, request_headers, content_length: size).returns(response)
+          subject.expects(:call).with(verb, uri, nil, request_headers, {content_length: size}).returns(response)
           subject.resize_page_blob container_name, blob_name, size
         end
 
@@ -1822,7 +1822,7 @@ describe Azure::Storage::Blob::BlobService do
 
         it "returns nil on success" do
           result = subject.set_blob_properties container_name, blob_name
-          _(result).must_equal nil
+          assert_nil(result)
         end
 
         describe "when the options Hash is used" do
@@ -1922,7 +1922,7 @@ describe Azure::Storage::Blob::BlobService do
 
         it "returns nil on success" do
           result = subject.set_blob_metadata container_name, blob_name, blob_metadata
-          _(result).must_equal nil
+          assert_nil(result)
         end
       end
 
@@ -2147,7 +2147,7 @@ describe Azure::Storage::Blob::BlobService do
           request_headers["x-ms-delete-snapshots"] = "include"
 
           subject.stubs(:blob_uri).with(container_name, blob_name, query).returns(uri)
-          subject.stubs(:call).with(verb, uri, nil, request_headers, delete_snapshots: :include).returns(response)
+          subject.stubs(:call).with(verb, uri, nil, request_headers, { delete_snapshots: :include }).returns(response)
         }
 
         it "assembles a URI for the request" do
@@ -2156,13 +2156,13 @@ describe Azure::Storage::Blob::BlobService do
         end
 
         it "calls StorageService#call with the prepared request" do
-          subject.expects(:call).with(verb, uri, nil, request_headers, delete_snapshots: :include).returns(response)
+          subject.expects(:call).with(verb, uri, nil, request_headers, { delete_snapshots: :include }).returns(response)
           subject.delete_blob container_name, blob_name
         end
 
         it "returns nil on success" do
           result = subject.delete_blob container_name, blob_name
-          _(result).must_equal nil
+          assert_nil(result)
         end
 
         describe "when snapshot is provided" do
@@ -2587,7 +2587,7 @@ describe Azure::Storage::Blob::BlobService do
 
           it "returns nil on success" do
             result = subject.release_blob_lease container_name, blob_name, lease_id
-            _(result).must_equal nil
+            assert_nil(result)
           end
         end
 
@@ -2720,7 +2720,7 @@ describe Azure::Storage::Blob::BlobService do
 
           it "returns nil on success" do
             result = subject.release_container_lease container_name, lease_id
-            _(result).must_equal nil
+            assert_nil(result)
           end
         end
 

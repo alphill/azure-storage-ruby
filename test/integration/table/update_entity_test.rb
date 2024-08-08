@@ -97,7 +97,7 @@ describe Azure::Storage::Table::TableService do
       }
 
       # and has the new one
-      _(result.properties["NewCustomProperty"]).must_equal nil
+      assert_nil(result.properties["NewCustomProperty"])
     end
 
     it "errors on a non-existing row key" do

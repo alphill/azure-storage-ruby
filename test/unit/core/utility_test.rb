@@ -29,12 +29,12 @@ describe Azure::Core::Logger do
     }
 
     it "#info" do
-      out, err = capture_io { subject.info(msg) }
+      out, _err = capture_io { subject.info(msg) }
       assert_equal("\e[37m\e[1m" + msg + "\e[0m\e[0m\n", out)
     end
 
     it "#error_with_exit" do
-      out, err = capture_io do
+      out, _err = capture_io do
         error = assert_raises(RuntimeError) do
           subject.error_with_exit(msg)
         end
@@ -44,7 +44,7 @@ describe Azure::Core::Logger do
     end
 
     it "#warn" do
-      out, err = capture_io do
+      out, _err = capture_io do
         warn = subject.warn(msg)
         assert_equal(msg, warn)
       end
@@ -52,7 +52,7 @@ describe Azure::Core::Logger do
     end
 
     it "#error" do
-      out, err = capture_io do
+      out, _err = capture_io do
         error = subject.error(msg)
         assert_equal(msg, error)
       end
@@ -60,7 +60,7 @@ describe Azure::Core::Logger do
     end
 
     it "#exception_message" do
-      out, err = capture_io do
+      out, _err = capture_io do
         exception = assert_raises(RuntimeError) do
           subject.exception_message(msg)
         end
@@ -70,7 +70,7 @@ describe Azure::Core::Logger do
     end
 
     it "#success" do
-      out, err = capture_io { subject.success(msg) }
+      out, _err = capture_io { subject.success(msg) }
       assert_equal("\e[32m" + msg + "\n\e[0m", out)
     end
   end

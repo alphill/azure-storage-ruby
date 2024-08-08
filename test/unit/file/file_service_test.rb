@@ -218,7 +218,7 @@ describe Azure::Storage::File::FileService do
 
       it "returns nil on success" do
         result = subject.delete_share share_name
-        _(result).must_equal nil
+        assert_nil(result)
       end
     end
 
@@ -245,7 +245,7 @@ describe Azure::Storage::File::FileService do
 
         it "returns nil on success" do
           result = subject.set_share_properties share_name
-          _(result).must_equal nil
+          assert_nil(result)
         end
 
         describe "when the options Hash is used" do
@@ -378,7 +378,7 @@ describe Azure::Storage::File::FileService do
 
       it "returns nil on success" do
         result = subject.set_share_metadata share_name, share_metadata
-        _(result).must_equal nil
+        assert_nil(result)
       end
     end
 
@@ -722,7 +722,7 @@ describe Azure::Storage::File::FileService do
 
       it "returns nil on success" do
         result = subject.set_directory_metadata share_name, directory_path, directory_metadata
-        _(result).must_equal nil
+        assert_nil(result)
       end
     end
   end
@@ -955,7 +955,7 @@ describe Azure::Storage::File::FileService do
       end
 
       it "returns a list of ranges" do
-        file, result = subject.list_file_ranges share_name, directory_path, file_name
+        _file, result = subject.list_file_ranges share_name, directory_path, file_name
         _(result).must_be_kind_of Array
         _(result.first).must_be_kind_of Array
         _(result.first.first).must_be_kind_of Integer
@@ -1016,7 +1016,7 @@ describe Azure::Storage::File::FileService do
       }
 
       it "resizes the file" do
-        subject.expects(:call).with(verb, uri, nil, request_headers, content_length: size).returns(response)
+        subject.expects(:call).with(verb, uri, nil, request_headers, {content_length: size}).returns(response)
         subject.resize_file share_name, directory_path, file_name, size
       end
     end
@@ -1044,7 +1044,7 @@ describe Azure::Storage::File::FileService do
 
       it "returns nil on success" do
         result = subject.set_file_properties share_name, directory_path, file_name
-        _(result).must_equal nil
+        assert_nil(result)
       end
 
       describe "when the options Hash is used" do
@@ -1161,7 +1161,7 @@ describe Azure::Storage::File::FileService do
 
       it "returns nil on success" do
         result = subject.set_file_metadata share_name, directory_path, file_name, file_metadata
-        _(result).must_equal nil
+        assert_nil(result)
       end
     end
 
@@ -1205,7 +1205,7 @@ describe Azure::Storage::File::FileService do
 
       before {
         response.stubs(:success?).returns(true)
-        response_body = "file-contents"
+        # response_body = "file-contents"
 
         subject.stubs(:file_uri).with(share_name, directory_path, file_name, query, options).returns(uri)
         subject.stubs(:call).with(verb, uri, nil, request_headers, options).returns(response)
@@ -1325,7 +1325,7 @@ describe Azure::Storage::File::FileService do
 
       it "returns nil on success" do
         result = subject.delete_file share_name, directory_path, file_name
-        _(result).must_equal nil
+        assert_nil(result)
       end
     end
 

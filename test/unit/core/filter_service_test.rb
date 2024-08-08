@@ -23,19 +23,19 @@ describe 'Azure core service' do
   end
 
   it 'works with default' do
-    subject.filters.count.must_equal 0
+    _(subject.filters.count).must_equal 0
   end
 
   it 'works with a debug filter' do
     service = Azure::Core::FilteredService.new
     service.with_filter Azure::Core::Http::DebugFilter.new
-    service.filters.count.must_equal 1
+    _(service.filters.count).must_equal 1
   end
 
   it 'works with retry policy filter' do
     service = Azure::Core::FilteredService.new
     service.with_filter Azure::Core::Http::DebugFilter.new
     service.with_filter Azure::Core::Http::RetryPolicy.new
-    service.filters.count.must_equal 2
+    _(service.filters.count).must_equal 2
   end
 end

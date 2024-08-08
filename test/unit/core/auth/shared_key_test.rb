@@ -41,19 +41,19 @@ describe Azure::Core::Auth::SharedKey do
 
   describe 'sign' do
     it 'creates a signature from the provided HTTP method, uri, and a specific set of standard headers' do
-      subject.sign(verb, uri, headers).must_equal 'account-name:TVilUAfUwtHIVp+eonglFDXfS5r0/OE0/vVX3GHcaxU='
+      _(subject.sign(verb, uri, headers)).must_equal 'account-name:TVilUAfUwtHIVp+eonglFDXfS5r0/OE0/vVX3GHcaxU='
     end
   end
 
   describe 'canonicalized_headers' do
     it 'creates a canonicalized header string' do
-      subject.canonicalized_headers(headers).must_equal "x-ms-imateapot:teapot\nx-ms-reserve-spaces:two  speces\nx-ms-shortandstout:True"
+      _(subject.canonicalized_headers(headers)).must_equal "x-ms-imateapot:teapot\nx-ms-reserve-spaces:two  speces\nx-ms-shortandstout:True"
     end
   end
 
   describe 'canonicalized_resource' do
     it 'creates a canonicalized resource string' do
-      subject.canonicalized_resource(uri).must_equal '/account-name/resource'
+      _(subject.canonicalized_resource(uri)).must_equal '/account-name/resource'
     end
   end
 end

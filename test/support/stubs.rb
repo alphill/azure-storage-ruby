@@ -22,6 +22,7 @@
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
 require "ostruct"
+require "minitest/unit"
 
 module Stubs
   def double(messages = {})

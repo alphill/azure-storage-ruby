@@ -25,27 +25,27 @@ describe Azure::Core::Http::HTTPError do
   end
 
   it 'is an instance of Azure::Core::Error' do
-    subject.must_be_kind_of Azure::Core::Error
+    _(subject).must_be_kind_of Azure::Core::Error
   end
 
   it 'lets us see the original uri' do
-    subject.uri.must_equal 'http://dummy.uri'
+    _(subject.uri).must_equal 'http://dummy.uri'
   end
 
   it "lets us see the errors'status code" do
-    subject.status_code.must_equal 409
+    _(subject.status_code).must_equal 409
   end
 
   it "lets us see the error's type" do
-    subject.type.must_equal 'TableAlreadyExists'
+    _(subject.type).must_equal 'TableAlreadyExists'
   end
 
   it "lets us see the error's description" do
-    subject.description.must_equal 'The table specified already exists.'
+    _(subject.description).must_equal 'The table specified already exists.'
   end
 
   it 'generates an error message that wraps both the type and description' do
-    subject.message.must_equal 'TableAlreadyExists (409): The table specified already exists.'
+    _(subject.message).must_equal 'TableAlreadyExists (409): The table specified already exists.'
   end
 
   describe 'with invalid http_response body' do
@@ -54,8 +54,8 @@ describe Azure::Core::Http::HTTPError do
     end
 
     it 'sets the type to unknown if the response body is not an XML' do
-      subject.type.must_equal 'Unknown'
-      subject.description.must_equal 'Invalid request'
+      _(subject.type).must_equal 'Unknown'
+      _(subject.description).must_equal 'Invalid request'
     end
   end
 
@@ -64,13 +64,12 @@ describe Azure::Core::Http::HTTPError do
       stub(body: Azure::Core::Fixtures[:http_invalid_header], status_code: 400, uri: 'http://dummy.uri', headers: { 'Content-Type' => 'application/atom+xml'})
     end
 
-    it 'sets the invalid header in the error details' do
-      subject.status_code.must_equal 400
-      subject.type.must_equal 'InvalidHeaderValue'
-      subject.description.must_include 'The value for one of the HTTP headers is not in the correct format'
-      subject.header.must_equal 'Range'
-      subject.header_value.must_equal 'bytes=0-512'
-    end
+    it { _(subject.status_code).must_equal 400 }
+    it { _(subject.type).must_equal 'InvalidHeaderValue' }
+    it { _(subject.description).must_include 'The value for one of the HTTP headers is not in the correct format' }
+    it { _(subject.header).must_equal 'Range' }
+    it { _(subject.header_value).must_equal 'bytes=0-512' }
+
   end
 
   describe 'with JSON payload' do
@@ -79,11 +78,9 @@ describe Azure::Core::Http::HTTPError do
       stub(body: body, status_code: 400, uri: 'http://dummy.uri', headers: { 'Content-Type' => 'application/json' })
     end
 
-    it 'parse error response with JSON payload' do
-      subject.status_code.must_equal 400
-      subject.type.must_equal 'ErrorCode'
-      subject.description.must_include 'ErrorDescription'
-    end
+    it { _(subject.status_code).must_equal 400 }
+    it { _(subject.type).must_equal 'ErrorCode' }
+    it { _(subject.description).must_include 'ErrorDescription' }
   end
 
   describe 'with unknown payload' do
@@ -92,10 +89,11 @@ describe Azure::Core::Http::HTTPError do
       stub(body: body, status_code: 400, uri: 'http://dummy.uri', headers: {})
     end
 
+    it { _(subject.status_code).must_equal 400 }
+
     it 'parse error response with JSON payload' do
-      subject.status_code.must_equal 400
-      subject.type.must_equal 'Unknown'
-      subject.description.must_include 'Error Description'
+      _(subject.type).must_equal 'Unknown'
+      _(subject.description).must_include 'Error Description'
     end
   end
 
@@ -105,9 +103,10 @@ describe Azure::Core::Http::HTTPError do
       stub(body: body, status_code: 404, uri: 'http://dummy.uri', headers: {}, reason_phrase: 'dummy reason')
     end
 
+    it { _(subject.status_code).must_equal 404 }
+
     it 'message has value assigned from reason_phrase' do
-      subject.status_code.must_equal 404
-      subject.message.must_equal 'Unknown (404): dummy reason'
+      _(subject.message).must_equal 'Unknown (404): dummy reason'
     end
   end
 end
