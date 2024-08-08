@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -18,12 +19,17 @@ require 'azure/core/http/http_error'
 
 describe Azure::Core::Http::HTTPError do
   let :http_response do
-    stub(body: Azure::Core::Fixtures[:http_error], status_code: 409, uri: 'http://dummy.uri', headers: { 'Content-Type' => 'application/atom+xml' })
+    stub(
+      body: Azure::Core::Fixtures[:http_error],
+      status_code: 409,
+      uri: 'http://dummy.uri',
+      headers: { 'Content-Type' => 'application/atom+xml' }
+    )
   end
 
-  subject do
+  subject {
     Azure::Core::Http::HTTPError.new(http_response)
-  end
+  }
 
   it 'is an instance of Azure::Core::Error' do
     _(subject).must_be_kind_of Azure::Core::Error
@@ -51,7 +57,7 @@ describe Azure::Core::Http::HTTPError do
 
   describe 'with invalid http_response body' do
     let :http_response do
-      stub(:body => "\r\nInvalid request\r\n", :status_code => 409, :uri => 'http://dummy.uri', headers: {})
+      stub(body: "\r\nInvalid request\r\n", status_code: 409, uri: 'http://dummy.uri', headers: {})
     end
 
     it 'sets the type to unknown if the response body is not an XML' do
@@ -62,7 +68,12 @@ describe Azure::Core::Http::HTTPError do
 
   describe 'with invalid headers' do
     let :http_response do
-      stub(body: Azure::Core::Fixtures[:http_invalid_header], status_code: 400, uri: 'http://dummy.uri', headers: { 'Content-Type' => 'application/atom+xml'})
+      stub(
+        body: Azure::Core::Fixtures[:http_invalid_header],
+        status_code: 400,
+        uri: 'http://dummy.uri',
+        headers: { 'Content-Type' => 'application/atom+xml' }
+      )
     end
 
     it { _(subject.status_code).must_equal 400 }
@@ -70,13 +81,12 @@ describe Azure::Core::Http::HTTPError do
     it { _(subject.description).must_include 'The value for one of the HTTP headers is not in the correct format' }
     it { _(subject.header).must_equal 'Range' }
     it { _(subject.header_value).must_equal 'bytes=0-512' }
-
   end
 
   describe 'with JSON payload' do
     let :http_response do
-      body = "{\"odata.error\":{\"code\":\"ErrorCode\",\"message\":{\"lang\":\"en-US\",\"value\":\"ErrorDescription\"}}}"
-      stub(body: body, status_code: 400, uri: 'http://dummy.uri', headers: { 'Content-Type' => 'application/json' })
+      body = '{"odata.error":{"code":"ErrorCode","message":{"lang":"en-US","value":"ErrorDescription"}}}'
+      stub(body:, status_code: 400, uri: 'http://dummy.uri', headers: { 'Content-Type' => 'application/json' })
     end
 
     it { _(subject.status_code).must_equal 400 }
@@ -87,7 +97,7 @@ describe Azure::Core::Http::HTTPError do
   describe 'with unknown payload' do
     let :http_response do
       body = 'Unknown Payload Format with Unknown Error Description'
-      stub(body: body, status_code: 400, uri: 'http://dummy.uri', headers: {})
+      stub(body:, status_code: 400, uri: 'http://dummy.uri', headers: {})
     end
 
     it { _(subject.status_code).must_equal 400 }
@@ -101,7 +111,7 @@ describe Azure::Core::Http::HTTPError do
   describe 'with no response body' do
     let :http_response do
       body = ''
-      stub(body: body, status_code: 404, uri: 'http://dummy.uri', headers: {}, reason_phrase: 'dummy reason')
+      stub(body:, status_code: 404, uri: 'http://dummy.uri', headers: {}, reason_phrase: 'dummy reason')
     end
 
     it { _(subject.status_code).must_equal 404 }

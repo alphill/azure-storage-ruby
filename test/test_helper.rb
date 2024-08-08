@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,31 +23,34 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "coveralls"
+require 'coveralls'
 Coveralls.wear!
 
-require "dotenv"
+require 'dotenv'
 Dotenv.load
 
-ENV["AZURE_STORAGE_CONNECTION_STRING"] = "DefaultEndpointsProtocol=https;AccountName=mockaccount;AccountKey=bW9ja2tleQ==" unless ENV["AZURE_STORAGE_CONNECTION_STRING"]
+unless ENV['AZURE_STORAGE_CONNECTION_STRING']
+  ENV['AZURE_STORAGE_CONNECTION_STRING'] =
+    'DefaultEndpointsProtocol=https;AccountName=mockaccount;AccountKey=bW9ja2tleQ=='
+end
 
-require "minitest/autorun"
-require "mocha/minitest"
-require "minitest/reporters"
+require 'minitest/autorun'
+require 'mocha/minitest'
+require 'minitest/reporters'
 Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
-require "timecop"
-require "logger"
-require "stringio"
+require 'timecop'
+require 'logger'
+require 'stringio'
 
 # add to the MiniTest DSL
 module Kernel
   def need_tests_for(name)
     describe "##{name}" do
-      it "needs unit tests" do
-        skip ""
+      it 'needs unit tests' do
+        skip ''
       end
     end
   end
 end
 
-Dir["./test/support/**/*.rb"].each { |dep| require dep }
+Dir['./test/support/**/*.rb'].each { |dep| require dep }

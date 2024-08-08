@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -23,12 +24,12 @@
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
 
-require "test_helper"
-require "azure/storage/blob"
-require "azure/storage/queue"
-require "azure/storage/file"
-require "azure/storage/table"
-require "azure/storage/common"
+require 'test_helper'
+require 'azure/storage/blob'
+require 'azure/storage/queue'
+require 'azure/storage/file'
+require 'azure/storage/table'
+require 'azure/storage/common'
 
 module Kernel
   def clear_storage_envs
@@ -45,9 +46,9 @@ module Kernel
   def clear_storage_instance_variables
     removed = {}
     Azure::Storage::Common::Configurable.keys.each do |key|
-      if Azure::Storage::Common::Client::instance_variables.include? :"@#{key}"
+      if Azure::Storage::Common::Client.instance_variables.include? :"@#{key}"
         removed[key] = Azure::Storage.send(key)
-        Azure::Storage::Common::Client::instance_variable_set(:"@#{key}", nil)
+        Azure::Storage::Common::Client.instance_variable_set(:"@#{key}", nil)
       end
     end
     removed
@@ -61,7 +62,7 @@ module Kernel
 
   def restore_storage_instance_variables(removed)
     removed.each do |k, v|
-      Azure::Storage::Common::Client::instance_variable_set(:"@#{k}", v)
+      Azure::Storage::Common::Client.instance_variable_set(:"@#{k}", v)
     end
   end
 
@@ -82,6 +83,6 @@ module Kernel
   end
 
   def get_connection_string(vals = {})
-    vals.map { |k, v| "#{vars_cs_mapping[k]}=#{v}" if vars_cs_mapping.key?(k) }.join(";")
+    vals.map { |k, v| "#{vars_cs_mapping[k]}=#{v}" if vars_cs_mapping.key?(k) }.join(';')
   end
 end

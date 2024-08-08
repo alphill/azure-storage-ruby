@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -21,7 +22,7 @@ describe Azure::Core::Auth::SharedKey do
 
   let(:verb) { 'POST' }
   let(:uri) { URI.parse 'http://dummy.uri/resource' }
-  let(:headers) do
+  let(:headers) {
     {
       'Content-Encoding' => 'foo',
       'Content-Language' => 'foo',
@@ -38,7 +39,7 @@ describe Azure::Core::Auth::SharedKey do
       'x-ms-ShortAndStout' => 'True',
       'x-ms-reserve-spaces' => 'two  speces'
     }
-  end
+  }
 
   describe 'sign' do
     it 'creates a signature from the provided HTTP method, uri, and a specific set of standard headers' do

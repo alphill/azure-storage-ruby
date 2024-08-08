@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,42 +23,42 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::File::FileService do
-  let(:user_agent_prefix) { "azure_storage_ruby_integration_test" }
+  let(:user_agent_prefix) { 'azure_storage_ruby_integration_test' }
   subject {
-    Azure::Storage::File::FileService.create(SERVICE_CREATE_OPTIONS()) { |headers|
-      headers["User-Agent"] = "#{user_agent_prefix}; #{headers['User-Agent']}"
-    }
+    Azure::Storage::File::FileService.create(SERVICE_CREATE_OPTIONS()) do |headers|
+      headers['User-Agent'] = "#{user_agent_prefix}; #{headers['User-Agent']}"
+    end
   }
   after { ShareNameHelper.clean }
 
-  describe "#set/get_file_metadata" do
+  describe '#set/get_file_metadata' do
     let(:share_name) { ShareNameHelper.name }
     let(:directory_name) { FileNameHelper.name }
     let(:file_name) { FileNameHelper.name }
     let(:file_length) { 1024 }
-    let(:metadata) { { "CustomMetadataProperty" => "CustomMetadataValue" } }
-    before {
+    let(:metadata) { { 'CustomMetadataProperty' => 'CustomMetadataValue' } }
+    before do
       subject.create_share share_name
       subject.create_directory share_name, directory_name
       subject.create_file share_name, directory_name, file_name, file_length
-    }
+    end
 
-    it "sets and gets custom file for the directory" do
+    it 'sets and gets custom file for the directory' do
       result = subject.set_file_metadata share_name, directory_name, file_name, metadata
       _(result).must_be_nil
       file = subject.get_file_metadata share_name, directory_name, file_name
       _(file).wont_be_nil
       _(file.name).must_equal file_name
-      metadata.each { |k, v|
+      metadata.each do |k, v|
         _(file.metadata).must_include k.downcase
         _(file.metadata[k.downcase]).must_equal v
-      }
+      end
     end
 
-    it "errors if the file does not exist" do
+    it 'errors if the file does not exist' do
       assert_raises(Azure::Core::Http::HTTPError) do
         subject.get_file_metadata share_name, directory_name, FileNameHelper.name
       end

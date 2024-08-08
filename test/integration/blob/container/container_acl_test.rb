@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,25 +23,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/storage/blob/blob_service"
+require 'integration/test_helper'
+require 'azure/storage/blob/blob_service'
 
 describe Azure::Storage::Blob::BlobService do
   subject { Azure::Storage::Blob::BlobService.create(SERVICE_CREATE_OPTIONS()) }
   after { ContainerNameHelper.clean }
 
-  describe "#set/get_container_acl" do
+  describe '#set/get_container_acl' do
     let(:public_access_level) { :container.to_s }
     let(:identifiers) {
       identifier = Azure::Storage::Common::Service::SignedIdentifier.new
-      identifier.id = "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI="
-      identifier.access_policy.start = "2009-09-28T08:49:37.0000000Z"
-      identifier.access_policy.expiry = "2009-09-29T08:49:37.0000000Z"
-      identifier.access_policy.permission = "rwd"
+      identifier.id = 'MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI='
+      identifier.access_policy.start = '2009-09-28T08:49:37.0000000Z'
+      identifier.access_policy.expiry = '2009-09-29T08:49:37.0000000Z'
+      identifier.access_policy.permission = 'rwd'
       [identifier]
     }
 
-    it "sets and gets the ACL for the container" do
+    it 'sets and gets the ACL for the container' do
       container_name = ContainerNameHelper.name
       subject.create_container container_name
       container, acl = subject.set_container_acl container_name, public_access_level, signed_identifiers: identifiers
@@ -64,16 +65,16 @@ describe Azure::Storage::Blob::BlobService do
       _(acl.first.access_policy.permission).must_equal identifiers.first.access_policy.permission
     end
 
-    it "errors if the container does not exist" do
+    it 'errors if the container does not exist' do
       assert_raises(Azure::Core::Http::HTTPError) do
         subject.get_container_acl ContainerNameHelper.name
       end
       assert_raises(Azure::Core::Http::HTTPError) do
-        subject.set_container_acl ContainerNameHelper.name, public_access_level, identifiers: identifiers
+        subject.set_container_acl ContainerNameHelper.name, public_access_level, identifiers:
       end
     end
 
-    it "lease id works for get_container_acl" do
+    it 'lease id works for get_container_acl' do
       container_name = ContainerNameHelper.name
       subject.create_container container_name
       container, acl = subject.set_container_acl container_name, public_access_level, signed_identifiers: identifiers
@@ -81,16 +82,16 @@ describe Azure::Storage::Blob::BlobService do
       subject.release_container_lease container_name, lease_id
       new_lease_id = subject.acquire_container_lease container_name
       # assert wrong lease fails
-      status_code = ""
-      description = ""
+      status_code = ''
+      description = ''
       begin
-        container, acl = subject.get_container_acl container_name, lease_id: lease_id
+        container, acl = subject.get_container_acl(container_name, lease_id:)
       rescue Azure::Core::Http::HTTPError => e
         status_code = e.status_code.to_s
         description = e.description
       end
-      _(status_code).must_equal "412"
-      _(description).must_include "The lease ID specified did not match the lease ID for the container."
+      _(status_code).must_equal '412'
+      _(description).must_include 'The lease ID specified did not match the lease ID for the container.'
       # assert right lease succeeds
       container, acl = subject.get_container_acl container_name, lease_id: new_lease_id
       _(container).wont_be_nil
@@ -115,25 +116,28 @@ describe Azure::Storage::Blob::BlobService do
       subject.release_container_lease container_name, new_lease_id
     end
 
-    it "lease id works for set_container_acl" do
+    it 'lease id works for set_container_acl' do
       container_name = ContainerNameHelper.name
       subject.create_container container_name
       lease_id = subject.acquire_container_lease container_name
       subject.release_container_lease container_name, lease_id
       new_lease_id = subject.acquire_container_lease container_name
       # assert wrong lease fails
-      status_code = ""
-      description = ""
+      status_code = ''
+      description = ''
       begin
-        container, acl = subject.set_container_acl container_name, public_access_level, signed_identifiers: identifiers, lease_id: lease_id
+        container, acl = subject.set_container_acl(container_name, public_access_level, signed_identifiers: identifiers, lease_id:)
       rescue Azure::Core::Http::HTTPError => e
         status_code = e.status_code.to_s
         description = e.description
       end
-      _(status_code).must_equal "412"
-      _(description).must_include "The lease ID specified did not match the lease ID for the container."
+      _(status_code).must_equal '412'
+      _(description).must_include 'The lease ID specified did not match the lease ID for the container.'
       # assert right lease succeeds
-      container, acl = subject.set_container_acl container_name, public_access_level, signed_identifiers: identifiers, lease_id: new_lease_id
+      container, acl = subject.set_container_acl container_name,
+        public_access_level,
+        signed_identifiers: identifiers,
+        lease_id: new_lease_id
       container, acl = subject.get_container_acl container_name, lease_id: new_lease_id
       _(container).wont_be_nil
       _(container.name).must_equal container_name
@@ -144,7 +148,10 @@ describe Azure::Storage::Blob::BlobService do
       _(acl.first.access_policy.expiry).must_equal identifiers.first.access_policy.expiry
       _(acl.first.access_policy.permission).must_equal identifiers.first.access_policy.permission
       # prove that no lease succeeds
-      container, acl = subject.set_container_acl container_name, public_access_level, signed_identifiers: identifiers, lease_id: new_lease_id
+      container, acl = subject.set_container_acl container_name,
+        public_access_level,
+        signed_identifiers: identifiers,
+        lease_id: new_lease_id
       # release lease afterwards
       subject.release_container_lease container_name, new_lease_id
     end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,21 +23,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::Queue::QueueService do
   subject { Azure::Storage::Queue::QueueService.create(SERVICE_CREATE_OPTIONS()) }
 
-  describe "#list_messages" do
+  describe '#list_messages' do
     let(:queue_name) { QueueNameHelper.name }
-    let(:message_text) { "some random text " + QueueNameHelper.name }
-    before {
+    let(:message_text) { 'some random text ' + QueueNameHelper.name }
+    before do
       subject.create_queue queue_name
       subject.create_message queue_name, message_text
-    }
+    end
     after { QueueNameHelper.clean }
 
-    it "returns a message from the queue, marking it as invisible" do
+    it 'returns a message from the queue, marking it as invisible' do
       result = subject.list_messages queue_name, 3
       _(result).wont_be_nil
       result.wont_be_empty
@@ -49,8 +50,8 @@ describe Azure::Storage::Queue::QueueService do
       _(result).must_be_empty
     end
 
-    it "returns multiple messages if passed the optional parameter" do
-      msg_text2 = "some random text " + QueueNameHelper.name
+    it 'returns multiple messages if passed the optional parameter' do
+      msg_text2 = 'some random text ' + QueueNameHelper.name
       subject.create_message queue_name, msg_text2
 
       result = subject.list_messages queue_name, 3, number_of_messages: 2
@@ -62,7 +63,7 @@ describe Azure::Storage::Queue::QueueService do
       result[0].id.wont_equal result[1].id
     end
 
-    it "the visibility_timeout parameter sets the message invisible for the period of time pending delete/update" do
+    it 'the visibility_timeout parameter sets the message invisible for the period of time pending delete/update' do
       result = subject.list_messages queue_name, 3
       _(result).wont_be_nil
       result.wont_be_empty

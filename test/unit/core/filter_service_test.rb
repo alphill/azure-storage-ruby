@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -15,13 +16,13 @@
 #--------------------------------------------------------------------------
 require 'test_helper'
 require 'azure/core'
-require "azure/core/http/debug_filter"
-require "azure/core/http/retry_policy"
+require 'azure/core/http/debug_filter'
+require 'azure/core/http/retry_policy'
 
 describe 'Azure core service' do
-  subject do
+  subject {
     Azure::Core::FilteredService.new
-  end
+  }
 
   it 'works with default' do
     _(subject.filters.count).must_equal 0

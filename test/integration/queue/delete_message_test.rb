@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,20 +23,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::Queue::QueueService do
   subject { Azure::Storage::Queue::QueueService.create(SERVICE_CREATE_OPTIONS()) }
 
-  describe "#delete_message" do
+  describe '#delete_message' do
     let(:queue_name) { QueueNameHelper.name }
-    before {
+    before do
       subject.create_queue queue_name
-      subject.create_message queue_name, "some random text " + QueueNameHelper.name
-    }
+      subject.create_message queue_name, 'some random text ' + QueueNameHelper.name
+    end
     after { QueueNameHelper.clean }
 
-    it "deletes a message" do
+    it 'deletes a message' do
       messages = subject.list_messages queue_name, 500
       _(messages.length).must_equal 1
       message = messages.first
@@ -47,29 +48,29 @@ describe Azure::Storage::Queue::QueueService do
       _(result).must_be_empty
     end
 
-    it "errors on an non-existent queue" do
+    it 'errors on an non-existent queue' do
       assert_raises(Azure::Core::Http::HTTPError) do
-        subject.delete_message QueueNameHelper.name, "message.id", "message.pop_receipt"
+        subject.delete_message QueueNameHelper.name, 'message.id', 'message.pop_receipt'
       end
     end
 
-    it "errors on an non-existent message id" do
+    it 'errors on an non-existent message id' do
       messages = subject.list_messages queue_name, 500
       _(messages.length).must_equal 1
       message = messages.first
 
       assert_raises(Azure::Core::Http::HTTPError) do
-        subject.delete_message queue_name, "bad.message.id", message.pop_receipt
+        subject.delete_message queue_name, 'bad.message.id', message.pop_receipt
       end
     end
 
-    it "errors on an non-existent pop_receipt" do
+    it 'errors on an non-existent pop_receipt' do
       messages = subject.list_messages queue_name, 500
       _(messages.length).must_equal 1
       message = messages.first
 
       assert_raises(Azure::Core::Http::HTTPError) do
-        subject.delete_message queue_name, message.id, "bad.message.pop_receipt"
+        subject.delete_message queue_name, message.id, 'bad.message.pop_receipt'
       end
     end
   end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -23,109 +24,110 @@
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
 
-require "integration/test_helper"
-require "azure/core/http/http_error"
+require 'integration/test_helper'
+require 'azure/core/http/http_error'
 
 describe Azure::Storage::Table::TableService do
-  describe "#merge_entity_batch" do
+  describe '#merge_entity_batch' do
     subject { Azure::Storage::Table::TableService.create(SERVICE_CREATE_OPTIONS()) }
     let(:table_name) { TableNameHelper.name }
 
     let(:entity_properties) {
       {
-        "PartitionKey" => "testingpartition",
-        "RowKey" => "abcd1234_existing",
-        "CustomStringProperty" => "CustomPropertyValue",
-        "CustomIntegerProperty" => 37,
-        "CustomBooleanProperty" => true,
-        "CustomDateProperty" => Time.now
+        'PartitionKey' => 'testingpartition',
+        'RowKey' => 'abcd1234_existing',
+        'CustomStringProperty' => 'CustomPropertyValue',
+        'CustomIntegerProperty' => 37,
+        'CustomBooleanProperty' => true,
+        'CustomDateProperty' => Time.now
       }
     }
 
-    before {
+    before do
       subject.create_table table_name
       subject.insert_entity table_name, entity_properties
-      @existing_etag = ""
+      @existing_etag = ''
 
       exists = false
       begin
-        existing = subject.get_entity table_name, entity_properties["PartitionKey"], entity_properties["RowKey"]
+        existing = subject.get_entity table_name, entity_properties['PartitionKey'], entity_properties['RowKey']
         @existing_etag = existing.etag
         exists = true
-      rescue
+      rescue StandardError
       end
 
-      assert exists, "cannot verify existing record"
-    }
+      assert exists, 'cannot verify existing record'
+    end
 
     after { TableNameHelper.clean }
 
-    it "updates an existing entity, merging the properties" do
-      batch = Azure::Storage::Table::Batch.new table_name, entity_properties["PartitionKey"]
-      batch.merge entity_properties["RowKey"],         "PartitionKey" => entity_properties["PartitionKey"],
-        "RowKey" => entity_properties["RowKey"],
-        "NewCustomProperty" => "NewCustomValue"
+    it 'updates an existing entity, merging the properties' do
+      batch = Azure::Storage::Table::Batch.new table_name, entity_properties['PartitionKey']
+      batch.merge entity_properties['RowKey'],
+        'PartitionKey' => entity_properties['PartitionKey'],
+        'RowKey' => entity_properties['RowKey'],
+        'NewCustomProperty' => 'NewCustomValue'
       etags = subject.execute_batch batch
 
       _(etags[0]).must_be_kind_of String
       etags[0].wont_equal @existing_etag
 
-      result = subject.get_entity table_name, entity_properties["PartitionKey"], entity_properties["RowKey"]
+      result = subject.get_entity table_name, entity_properties['PartitionKey'], entity_properties['RowKey']
 
       _(result).must_be_kind_of Azure::Storage::Table::Entity
-      _(result.properties["PartitionKey"]).must_equal entity_properties["PartitionKey"]
-      _(result.properties["RowKey"]).must_equal entity_properties["RowKey"]
+      _(result.properties['PartitionKey']).must_equal entity_properties['PartitionKey']
+      _(result.properties['RowKey']).must_equal entity_properties['RowKey']
 
       # retained all existing props
-      entity_properties.each { |k, v|
-        unless entity_properties[k].class == Time
-          _(result.properties[k]).must_equal entity_properties[k]
-        else
+      entity_properties.each do |k, _v|
+        if entity_properties[k].class == Time
           _(result.properties[k].to_i).must_equal entity_properties[k].to_i
+        else
+          _(result.properties[k]).must_equal entity_properties[k]
         end
-      }
+      end
 
       # and has the new one
-      _(result.properties["NewCustomProperty"]).must_equal "NewCustomValue"
+      _(result.properties['NewCustomProperty']).must_equal 'NewCustomValue'
     end
 
-    it "errors on a non-existing row key" do
+    it 'errors on a non-existing row key' do
       assert_raises(RuntimeError) do
         entity = entity_properties.dup
-        entity["RowKey"] = "this-row-key-does-not-exist"
+        entity['RowKey'] = 'this-row-key-does-not-exist'
 
-        batch = Azure::Storage::Table::Batch.new table_name, entity["PartitionKey"]
-        batch.merge entity["RowKey"], entity
+        batch = Azure::Storage::Table::Batch.new table_name, entity['PartitionKey']
+        batch.merge entity['RowKey'], entity
         etags = subject.execute_batch batch
       end
     end
 
-    it "errors on an invalid table name" do
+    it 'errors on an invalid table name' do
       assert_raises(RuntimeError) do
-        batch = Azure::Storage::Table::Batch.new "this_table.cannot-exist!", entity_properties["PartitionKey"]
-        batch.merge entity_properties["RowKey"], entity_properties
+        batch = Azure::Storage::Table::Batch.new 'this_table.cannot-exist!', entity_properties['PartitionKey']
+        batch.merge entity_properties['RowKey'], entity_properties
         etags = subject.execute_batch batch
       end
     end
 
-    it "errors on an invalid partition key" do
+    it 'errors on an invalid partition key' do
       assert_raises(RuntimeError) do
         entity = entity_properties.dup
-        entity["PartitionKey"] = "this/partition_key#is?invalid"
+        entity['PartitionKey'] = 'this/partition_key#is?invalid'
 
-        batch = Azure::Storage::Table::Batch.new table_name, entity["PartitionKey"]
-        batch.merge entity["RowKey"], entity
+        batch = Azure::Storage::Table::Batch.new table_name, entity['PartitionKey']
+        batch.merge entity['RowKey'], entity
         etags = subject.execute_batch batch
       end
     end
 
-    it "errors on an invalid row key" do
+    it 'errors on an invalid row key' do
       assert_raises(RuntimeError) do
         entity = entity_properties.dup
-        entity["RowKey"] = "this/row_key#is?invalid"
+        entity['RowKey'] = 'this/row_key#is?invalid'
 
-        batch = Azure::Storage::Table::Batch.new table_name, entity["PartitionKey"]
-        batch.merge entity["RowKey"], entity
+        batch = Azure::Storage::Table::Batch.new table_name, entity['PartitionKey']
+        batch.merge entity['RowKey'], entity
         etags = subject.execute_batch batch
       end
     end

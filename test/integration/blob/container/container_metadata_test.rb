@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,22 +23,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/storage/blob/blob_service"
+require 'integration/test_helper'
+require 'azure/storage/blob/blob_service'
 
 describe Azure::Storage::Blob::BlobService do
-  let(:user_agent_prefix) { "azure_storage_ruby_integration_test" }
+  let(:user_agent_prefix) { 'azure_storage_ruby_integration_test' }
   subject {
-    Azure::Storage::Blob::BlobService.create(SERVICE_CREATE_OPTIONS()) { |headers|
-      headers["User-Agent"] = "#{user_agent_prefix}; #{headers['User-Agent']}"
-    }
+    Azure::Storage::Blob::BlobService.create(SERVICE_CREATE_OPTIONS()) do |headers|
+      headers['User-Agent'] = "#{user_agent_prefix}; #{headers['User-Agent']}"
+    end
   }
   after { ContainerNameHelper.clean }
 
-  describe "#set/get_container_metadata" do
-    let(:metadata) { { "CustomMetadataProperty" => "CustomMetadataValue" } }
+  describe '#set/get_container_metadata' do
+    let(:metadata) { { 'CustomMetadataProperty' => 'CustomMetadataValue' } }
 
-    it "sets and gets custom metadata for the container" do
+    it 'sets and gets custom metadata for the container' do
       container_name = ContainerNameHelper.name
       subject.create_container container_name
       result = subject.set_container_metadata container_name, metadata
@@ -45,13 +46,13 @@ describe Azure::Storage::Blob::BlobService do
       container = subject.get_container_metadata container_name
       _(container).wont_be_nil
       _(container.name).must_equal container_name
-      metadata.each { |k, v|
+      metadata.each do |k, v|
         _(container.metadata).must_include k.downcase
         _(container.metadata[k.downcase]).must_equal v
-      }
+      end
     end
 
-    it "errors if the container does not exist" do
+    it 'errors if the container does not exist' do
       assert_raises(Azure::Core::Http::HTTPError) do
         subject.get_container_metadata ContainerNameHelper.name
       end
@@ -60,70 +61,70 @@ describe Azure::Storage::Blob::BlobService do
       end
     end
 
-    it "lease id works for get_container_metadata" do
+    it 'lease id works for get_container_metadata' do
       container_name = ContainerNameHelper.name
-      container = subject.create_container container_name, metadata: metadata
+      container = subject.create_container(container_name, metadata:)
 
       lease_id = subject.acquire_container_lease container_name
       subject.release_container_lease container_name, lease_id
       new_lease_id = subject.acquire_container_lease container_name
       # assert wrong lease fails
-      status_code = ""
-      description = ""
+      status_code = ''
+      description = ''
       begin
-        container = subject.get_container_metadata container_name, lease_id: lease_id
+        container = subject.get_container_metadata(container_name, lease_id:)
       rescue Azure::Core::Http::HTTPError => e
         status_code = e.status_code.to_s
         description = e.description
       end
-      _(status_code).must_equal "412"
-      _(description).must_include "The lease ID specified did not match the lease ID for the container."
+      _(status_code).must_equal '412'
+      _(description).must_include 'The lease ID specified did not match the lease ID for the container.'
       # assert right lease succeeds
       container = subject.get_container_metadata container_name, lease_id: new_lease_id
       _(container).wont_be_nil
       _(container.name).must_equal container_name
-      metadata.each { |k, v|
+      metadata.each do |k, v|
         _(container.metadata).must_include k.downcase
         _(container.metadata[k.downcase]).must_equal v
-      }
+      end
       # assert no lease succeeds
       container = subject.get_container_metadata container_name
       _(container).wont_be_nil
-      metadata.each { |k, v|
+      metadata.each do |k, v|
         _(container.metadata).must_include k.downcase
         _(container.metadata[k.downcase]).must_equal v
-      }
+      end
       # release lease afterwards
       subject.release_container_lease container_name, new_lease_id
     end
 
-    it "lease id works for set_container_metadata" do
+    it 'lease id works for set_container_metadata' do
       container_name = ContainerNameHelper.name
       subject.create_container container_name
       lease_id = subject.acquire_container_lease container_name
       subject.release_container_lease container_name, lease_id
       new_lease_id = subject.acquire_container_lease container_name
       # assert wrong lease fails
-      status_code = ""
-      description = ""
+      status_code = ''
+      description = ''
       begin
-        result = subject.set_container_metadata container_name, metadata, lease_id: lease_id
+        result = subject.set_container_metadata(container_name, metadata, lease_id:)
       rescue Azure::Core::Http::HTTPError => e
         status_code = e.status_code.to_s
         description = e.description
       end
-      _(status_code).must_equal "412"
-      _(description).must_include "The lease ID specified did not match the lease ID for the container."
+      _(status_code).must_equal '412'
+      _(description).must_include 'The lease ID specified did not match the lease ID for the container.'
       # assert right lease succeeds
       result = subject.set_container_metadata container_name, metadata, lease_id: new_lease_id
       _(result).must_be_nil
       container = subject.get_container_metadata container_name
       _(container).wont_be_nil
       _(container.name).must_equal container_name
-      metadata.each { |k, v|
+      metadata.each do |k, v|
         _(container.metadata).must_include k.downcase
         _(container.metadata[k.downcase]).must_equal v
-      }
+      end
       # prove that no lease succeeds
       result = subject.set_container_metadata container_name, metadata
       # release lease afterwards

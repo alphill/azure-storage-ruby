@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,29 +23,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/storage/blob/blob_service"
+require 'integration/test_helper'
+require 'azure/storage/blob/blob_service'
 
 describe Azure::Storage::Blob::BlobService do
   subject { Azure::Storage::Blob::BlobService.create(SERVICE_CREATE_OPTIONS()) }
   after { ContainerNameHelper.clean }
 
-  describe "#set/get_blob_properties" do
+  describe '#set/get_blob_properties' do
     let(:container_name) { ContainerNameHelper.name }
-    let(:blob_name) { "blobname" }
+    let(:blob_name) { 'blobname' }
     let(:length) { 1024 }
-    before {
+    before do
       subject.create_container container_name
       subject.create_page_blob container_name, blob_name, length
+    end
+    let(:options) {
+      {
+        content_type: 'application/my-special-format',
+        content_encoding: 'gzip',
+        content_language: 'klingon',
+        cache_control: 'max-age=1296000'
+      }
     }
-    let(:options) { {
-        content_type: "application/my-special-format",
-        content_encoding: "gzip",
-        content_language: "klingon",
-        cache_control: "max-age=1296000",
-      }}
 
-    it "sets and gets properties for a blob" do
+    it 'sets and gets properties for a blob' do
       result = subject.set_blob_properties container_name, blob_name, options
       _(result).must_be_nil
       blob = subject.get_blob_properties container_name, blob_name
@@ -53,14 +56,14 @@ describe Azure::Storage::Blob::BlobService do
       _(blob.properties[:cache_control]).must_equal options[:cache_control]
     end
 
-    describe "when a blob has a snapshot" do
-      before {
+    describe 'when a blob has a snapshot' do
+      before do
         subject.set_blob_properties container_name, blob_name, options
-      }
+      end
 
-      it "gets properties for a blob snapshot" do
+      it 'gets properties for a blob snapshot' do
         snapshot = subject.create_blob_snapshot container_name, blob_name
-        blob = subject.get_blob_properties container_name, blob_name, snapshot: snapshot
+        blob = subject.get_blob_properties(container_name, blob_name, snapshot:)
 
         _(blob.snapshot).must_equal snapshot
         _(blob.properties[:content_type]).must_equal options[:content_type]
@@ -68,23 +71,23 @@ describe Azure::Storage::Blob::BlobService do
         _(blob.properties[:cache_control]).must_equal options[:cache_control]
       end
 
-      it "errors if the snapshot does not exist" do
+      it 'errors if the snapshot does not exist' do
         assert_raises(Azure::Core::Http::HTTPError) do
-          subject.get_blob_properties container_name, blob_name, snapshot: "invalidsnapshot"
+          subject.get_blob_properties container_name, blob_name, snapshot: 'invalidsnapshot'
         end
       end
     end
 
-    it "errors if the blob name does not exist" do
+    it 'errors if the blob name does not exist' do
       assert_raises(Azure::Core::Http::HTTPError) do
-        subject.get_blob_properties container_name, "thisblobdoesnotexist"
+        subject.get_blob_properties container_name, 'thisblobdoesnotexist'
       end
       assert_raises(Azure::Core::Http::HTTPError) do
-        subject.get_blob_properties container_name, "thisblobdoesnotexist", options
+        subject.get_blob_properties container_name, 'thisblobdoesnotexist', options
       end
     end
 
-    it "lease id works for get_blob_properties" do
+    it 'lease id works for get_blob_properties' do
       page_blob_name = BlobNameHelper.name
       subject.create_page_blob container_name, page_blob_name, length
       subject.set_blob_properties container_name, page_blob_name, options
@@ -93,15 +96,15 @@ describe Azure::Storage::Blob::BlobService do
       subject.release_blob_lease container_name, page_blob_name, lease_id
       new_lease_id = subject.acquire_blob_lease container_name, page_blob_name
       # assert wrong lease fails
-      status_code = ""
-      description = ""
+      status_code = ''
+      description = ''
       begin
-        blob = subject.get_blob_properties container_name, page_blob_name, lease_id: lease_id
+        blob = subject.get_blob_properties(container_name, page_blob_name, lease_id:)
       rescue Azure::Core::Http::HTTPError => e
         status_code = e.status_code.to_s
         description = e.description
       end
-      _(status_code).must_equal "412"
+      _(status_code).must_equal '412'
       # assert right lease succeeds
       blob = subject.get_blob_properties container_name, page_blob_name, lease_id: new_lease_id
       _(blob).wont_be_nil
@@ -116,7 +119,7 @@ describe Azure::Storage::Blob::BlobService do
       _(blob.properties[:cache_control]).must_equal options[:cache_control]
     end
 
-    it "lease id works for set_blob_properties" do
+    it 'lease id works for set_blob_properties' do
       page_blob_name = BlobNameHelper.name
       subject.create_page_blob container_name, page_blob_name, length
       # add lease to blob
@@ -124,16 +127,16 @@ describe Azure::Storage::Blob::BlobService do
       subject.release_blob_lease container_name, page_blob_name, lease_id
       new_lease_id = subject.acquire_blob_lease container_name, page_blob_name
       # assert wrong lease fails
-      status_code = ""
-      description = ""
+      status_code = ''
+      description = ''
       begin
-        blob = subject.set_blob_properties container_name, page_blob_name, options.merge(lease_id: lease_id)
+        blob = subject.set_blob_properties container_name, page_blob_name, options.merge(lease_id:)
       rescue Azure::Core::Http::HTTPError => e
         status_code = e.status_code.to_s
         description = e.description
       end
-      _(status_code).must_equal "412"
-      _(description).must_include "The lease ID specified did not match the lease ID for the blob."
+      _(status_code).must_equal '412'
+      _(description).must_include 'The lease ID specified did not match the lease ID for the blob.'
       # assert right lease succeeds
       result = subject.set_blob_properties container_name, page_blob_name, options.merge(lease_id: new_lease_id)
       _(result).must_be_nil
@@ -143,16 +146,16 @@ describe Azure::Storage::Blob::BlobService do
       _(blob.properties[:content_encoding]).must_equal options[:content_encoding]
       _(blob.properties[:cache_control]).must_equal options[:cache_control]
       # prove that no lease fails
-      status_code = ""
-      description = ""
+      status_code = ''
+      description = ''
       begin
         blob = subject.set_blob_properties container_name, page_blob_name, options
       rescue Azure::Core::Http::HTTPError => e
         status_code = e.status_code.to_s
         description = e.description
       end
-      _(status_code).must_equal "412"
-      _(description).must_include "There is currently a lease on the blob and no lease ID was specified in the request."
+      _(status_code).must_equal '412'
+      _(description).must_include 'There is currently a lease on the blob and no lease ID was specified in the request.'
     end
   end
 end

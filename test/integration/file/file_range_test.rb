@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,7 +23,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::File::FileService do
   subject { Azure::Storage::File::FileService.create(SERVICE_CREATE_OPTIONS()) }
@@ -30,20 +31,20 @@ describe Azure::Storage::File::FileService do
 
   let(:share_name) { ShareNameHelper.name }
   let(:directory_name) { FileNameHelper.name }
-  let(:file_name) { "filename" }
-  let(:file_name2) { "filename2" }
+  let(:file_name) { 'filename' }
+  let(:file_name2) { 'filename2' }
   let(:file_length) { 2560 }
-  before {
+  before do
     subject.create_share share_name
     subject.create_directory share_name, directory_name
     subject.create_file share_name, directory_name, file_name, file_length
     subject.create_file share_name, directory_name, file_name2, file_length
-  }
+  end
 
-  describe "#put_file_range" do
-    it "creates ranges in a file" do
-      content = ""
-      512.times.each { |i| content << "@" }
+  describe '#put_file_range' do
+    it 'creates ranges in a file' do
+      content = ''
+      512.times.each { |_i| content << '@' }
 
       subject.put_file_range share_name, directory_name, file_name, 0, 511, content
       subject.put_file_range share_name, directory_name, file_name, 1024, 1535, content
@@ -59,29 +60,35 @@ describe Azure::Storage::File::FileService do
     end
   end
 
-  describe "when the options hash is used" do
-    it "if transactional_md5 match is specified" do
-      content = ""
-      512.times.each { |i| content << "@" }
+  describe 'when the options hash is used' do
+    it 'if transactional_md5 match is specified' do
+      content = ''
+      512.times.each { |_i| content << '@' }
 
       file = subject.put_file_range share_name, directory_name, file_name, 0, 511, content
-      subject.put_file_range share_name, directory_name, file_name, 1024, 1535, content, transactional_md5: Base64.strict_encode64(Digest::MD5.digest(content))
+      subject.put_file_range share_name,
+        directory_name,
+        file_name,
+        1024,
+        1535,
+        content,
+        transactional_md5: Base64.strict_encode64(Digest::MD5.digest(content))
     end
 
-    it "if transactional_md5 does not match" do
-      content = ""
-      512.times.each { |i| content << "@" }
+    it 'if transactional_md5 does not match' do
+      content = ''
+      512.times.each { |_i| content << '@' }
 
       assert_raises(Azure::Core::Http::HTTPError) do
-        file = subject.put_file_range share_name, directory_name, file_name2, 0, 511, content, transactional_md5: "2105b16a6714bd9d"
+        file = subject.put_file_range share_name, directory_name, file_name2, 0, 511, content, transactional_md5: '2105b16a6714bd9d'
       end
     end
   end
 
-  describe "#clear_file_ranges" do
-    before {
-      content = ""
-      512.times.each { |i| content << "@" }
+  describe '#clear_file_ranges' do
+    before do
+      content = ''
+      512.times.each { |_i| content << '@' }
 
       subject.put_file_range share_name, directory_name, file_name, 0, 511, content
       subject.put_file_range share_name, directory_name, file_name, 1024, 1535, content
@@ -95,10 +102,10 @@ describe Azure::Storage::File::FileService do
       _(ranges[1][1]).must_equal 1535
       _(ranges[2][0]).must_equal 2048
       _(ranges[2][1]).must_equal 2559
-    }
+    end
 
-    describe "when both start_range and end_range are specified" do
-      it "clears the data in files within the provided range" do
+    describe 'when both start_range and end_range are specified' do
+      it 'clears the data in files within the provided range' do
         subject.clear_file_range share_name, directory_name, file_name, 512, 1535
 
         file, ranges = subject.list_file_ranges share_name, directory_name, file_name, start_range: 0, end_range: 2560
@@ -114,16 +121,16 @@ describe Azure::Storage::File::FileService do
     end
   end
 
-  describe "#list_file_ranges" do
-    before {
-      content = ""
-      512.times.each { |i| content << "@" }
+  describe '#list_file_ranges' do
+    before do
+      content = ''
+      512.times.each { |_i| content << '@' }
 
       subject.put_file_range share_name, directory_name, file_name, 0, 511, content
       subject.put_file_range share_name, directory_name, file_name, 1024, 1535, content
-    }
+    end
 
-    it "lists the active file ranges" do
+    it 'lists the active file ranges' do
       file, ranges = subject.list_file_ranges share_name, directory_name, file_name, start_range: 0, end_range: 1536
       _(file.properties[:etag]).wont_be_nil
       _(file.properties[:last_modified]).wont_be_nil

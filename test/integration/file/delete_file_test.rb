@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,24 +23,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::File::FileService do
   subject { Azure::Storage::File::FileService.create(SERVICE_CREATE_OPTIONS()) }
   after { ShareNameHelper.clean }
 
-  describe "#delete_file" do
+  describe '#delete_file' do
     let(:share_name) { ShareNameHelper.name }
     let(:directory_name) { FileNameHelper.name }
     let(:file_name) { FileNameHelper.name }
     let(:file_length) { 1024 }
-    before {
+    before do
       subject.create_share share_name
       subject.create_directory share_name, directory_name
       subject.create_file share_name, directory_name, file_name, file_length
-    }
+    end
 
-    it "deletes the directory" do
+    it 'deletes the directory' do
       file = subject.get_file_properties share_name, directory_name, file_name
       _(file.properties[:content_length]).must_equal file_length
 
@@ -51,7 +52,7 @@ describe Azure::Storage::File::FileService do
       end
     end
 
-    it "errors if the directory does not exist" do
+    it 'errors if the directory does not exist' do
       assert_raises(Azure::Core::Http::HTTPError) do
         subject.delete_file share_name, directory_name, FileNameHelper.name
       end

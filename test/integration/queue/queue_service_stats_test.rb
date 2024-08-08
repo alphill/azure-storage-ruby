@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,17 +23,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::Queue::QueueService do
   # The storage account should have read-access geo-redundant replication enabled for this case
   subject { Azure::Storage::Queue::QueueService.create(SERVICE_CREATE_OPTIONS()) }
 
-  describe "#get_service_stats" do
-    it "gets service stats" do
+  describe '#get_service_stats' do
+    it 'gets service stats' do
       stats = subject.get_service_stats
       _(stats.geo_replication).must_be_kind_of Azure::Storage::Common::Service::GeoReplication
-      _(stats.geo_replication.status).must_equal "live"
+      _(stats.geo_replication.status).must_equal 'live'
       _(stats.geo_replication.last_sync_time).must_be_kind_of Time
     end
   end

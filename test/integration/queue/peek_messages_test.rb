@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,22 +23,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/storage/queue/queue_service"
+require 'integration/test_helper'
+require 'azure/storage/queue/queue_service'
 
 describe Azure::Storage::Queue::QueueService do
   subject { Azure::Storage::Queue::QueueService.create(SERVICE_CREATE_OPTIONS()) }
 
-  describe "#peek_messages" do
+  describe '#peek_messages' do
     let(:queue_name) { QueueNameHelper.name }
-    let(:message_text) { "some random text " + QueueNameHelper.name }
-    before {
+    let(:message_text) { 'some random text ' + QueueNameHelper.name }
+    before do
       subject.create_queue queue_name
       subject.create_message queue_name, message_text
-    }
+    end
     after { QueueNameHelper.clean }
 
-    it "returns a message from the queue without marking it as invisible" do
+    it 'returns a message from the queue without marking it as invisible' do
       result = subject.peek_messages queue_name
       _(result).wont_be_nil
       result.wont_be_empty
@@ -53,8 +54,8 @@ describe Azure::Storage::Queue::QueueService do
       _(result[0].id).must_equal message.id
     end
 
-    it "returns multiple messages if passed the optional parameter" do
-      msg_text2 = "some random text " + QueueNameHelper.name
+    it 'returns multiple messages if passed the optional parameter' do
+      msg_text2 = 'some random text ' + QueueNameHelper.name
       subject.create_message queue_name, msg_text2
 
       result = subject.peek_messages queue_name, number_of_messages: 2

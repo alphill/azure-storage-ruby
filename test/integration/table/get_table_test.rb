@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,26 +23,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/core/http/http_error"
+require 'integration/test_helper'
+require 'azure/core/http/http_error'
 
 describe Azure::Storage::Table::TableService do
-  describe "#get_table" do
+  describe '#get_table' do
     subject { Azure::Storage::Table::TableService.create(SERVICE_CREATE_OPTIONS()) }
     let(:table_name) { TableNameHelper.name }
     before { subject.create_table table_name }
     after { TableNameHelper.clean }
 
-    it "gets the last updated time of a valid table" do
+    it 'gets the last updated time of a valid table' do
       result = subject.get_table table_name
       _(result).must_be_kind_of Hash
-      _(result["TableName"]).must_equal table_name
+      _(result['TableName']).must_equal table_name
     end
 
-    it "errors on an invalid table" do
+    it 'errors on an invalid table' do
       assert_raises(Azure::Core::Http::HTTPError) do
-         subject.get_table "this_table.cannot-exist!"
-       end
+        subject.get_table 'this_table.cannot-exist!'
+      end
     end
   end
 end

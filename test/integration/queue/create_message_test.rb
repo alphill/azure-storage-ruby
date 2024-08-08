@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,18 +23,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::Queue::QueueService do
   subject { Azure::Storage::Queue::QueueService.create(SERVICE_CREATE_OPTIONS()) }
 
-  describe "#create_message" do
+  describe '#create_message' do
     let(:queue_name) { QueueNameHelper.name }
     let(:message_text) { "message text random value: #{QueueNameHelper.name}" }
     before { subject.create_queue queue_name }
     after { QueueNameHelper.clean }
 
-    it "creates a message in the specified queue and returns nil on success" do
+    it 'creates a message in the specified queue and returns nil on success' do
       result = subject.create_message(queue_name, message_text)
       _(result).wont_be_nil
       result.wont_be_empty
@@ -49,14 +50,13 @@ describe Azure::Storage::Queue::QueueService do
       _(result[0].message_text).must_equal message_text
     end
 
-
-    describe "when the options hash is used" do
+    describe 'when the options hash is used' do
       let(:visibility_timeout) { 3 }
       let(:message_ttl) { 600 }
       let(:encode) { true }
 
-      it "the :visibility_timeout option causes the message to be invisible for a period of time" do
-        result = subject.create_message(queue_name, message_text, visibility_timeout: visibility_timeout)
+      it 'the :visibility_timeout option causes the message to be invisible for a period of time' do
+        result = subject.create_message(queue_name, message_text, visibility_timeout:)
         _(result).wont_be_nil
         result.wont_be_empty
         _(result.length).must_equal 1
@@ -74,8 +74,8 @@ describe Azure::Storage::Queue::QueueService do
         _(result[0].message_text).must_equal message_text
       end
 
-      it "the :message_ttl option modifies the expiration_date of the message" do
-        result = subject.create_message(queue_name, message_text, message_ttl: message_ttl)
+      it 'the :message_ttl option modifies the expiration_date of the message' do
+        result = subject.create_message(queue_name, message_text, message_ttl:)
         _(result).wont_be_nil
         result.wont_be_empty
         _(result.length).must_equal 1
@@ -91,8 +91,8 @@ describe Azure::Storage::Queue::QueueService do
         _(Time.parse(message.expiration_time).to_i).must_equal Time.parse(message.insertion_time).to_i + message_ttl
       end
 
-      it "the :encode option encodes with strict base64" do
-        result = subject.create_message(queue_name, message_text, encode: encode)
+      it 'the :encode option encodes with strict base64' do
+        result = subject.create_message(queue_name, message_text, encode:)
         _(result).wont_be_nil
         result.wont_be_empty
         _(result.length).must_equal 1
@@ -107,7 +107,7 @@ describe Azure::Storage::Queue::QueueService do
       end
     end
 
-    it "errors on an non-existent queue" do
+    it 'errors on an non-existent queue' do
       assert_raises(Azure::Core::Http::HTTPError) do
         subject.create_message QueueNameHelper.name, message_text
       end

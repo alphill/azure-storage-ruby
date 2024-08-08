@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -25,7 +26,7 @@ describe 'Azure core service' do
     describe 'with no args' do
       subject { core_service.generate_uri }
 
-      it { _(subject).must_be_kind_of ::URI }
+      it { _(subject).must_be_kind_of URI }
       it { _(subject.to_s).must_equal 'http://dumyhost.uri/' }
     end
 
@@ -50,7 +51,7 @@ describe 'Azure core service' do
         describe 'when it has encoded spaces' do
           let(:path) { 'blob%20name%20with%20spaces' }
 
-          it { _(subject.host).must_equal 'dumyhost.uri'}
+          it { _(subject.host).must_equal 'dumyhost.uri' }
 
           it 'does not re-encode path with spaces' do
             _(subject.path).must_equal "/#{path}"
@@ -60,7 +61,7 @@ describe 'Azure core service' do
         describe 'when it has encoded characters' do
           let(:path) { 'host/path/%D1%84%D0%B1%D0%B0%D1%84.jpg' }
 
-          it { _(subject.host).must_equal 'dumyhost.uri'}
+          it { _(subject.host).must_equal 'dumyhost.uri' }
 
           it 'generate_uri should not re-encode path with special characters' do
             _(subject.path).must_equal "/#{path}"
@@ -71,7 +72,7 @@ describe 'Azure core service' do
       describe 'with options' do
         subject { core_service.generate_uri('', options) }
 
-        let(:options) { {'key' => 'value !', 'key !' => 'value', 'timeout' => 45 } }
+        let(:options) { { 'key' => 'value !', 'key !' => 'value', 'timeout' => 45 } }
 
         it 'encodes keys and values' do
           _(subject.query).must_include 'key=value+%21&key+%21=value&timeout=45'

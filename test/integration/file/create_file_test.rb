@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,36 +23,36 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "azure/core/http/http_error"
-require "integration/test_helper"
+require 'azure/core/http/http_error'
+require 'integration/test_helper'
 
 describe Azure::Storage::File::FileService do
   subject { Azure::Storage::File::FileService.create(SERVICE_CREATE_OPTIONS()) }
   after { ShareNameHelper.clean }
 
-  describe "#create_file_from_content" do
+  describe '#create_file_from_content' do
     let(:share_name) { ShareNameHelper.name }
     let(:directory_name) { FileNameHelper.name }
     let(:file_name) { FileNameHelper.name }
-    before {
+    before do
       subject.create_share share_name
       subject.create_directory share_name, directory_name
-    }
+    end
 
-    it "1MB string payload works" do
+    it '1MB string payload works' do
       length = 1 * 1024 * 1024
       content = SecureRandom.random_bytes(length)
-      content.force_encoding "utf-8"
+      content.force_encoding 'utf-8'
       file_name = FileNameHelper.name
       subject.create_file_from_content share_name, directory_name, file_name, length, content
       file, body = subject.get_file(share_name, directory_name, file_name)
       _(file.name).must_equal file_name
       _(file.properties[:content_length]).must_equal length
-      _(file.properties[:content_type]).must_equal "text/plain; charset=UTF-8"
+      _(file.properties[:content_type]).must_equal 'text/plain; charset=UTF-8'
       _(Digest::MD5.hexdigest(body)).must_equal Digest::MD5.hexdigest(content)
     end
 
-    it "4MB string payload works" do
+    it '4MB string payload works' do
       length = 4 * 1024 * 1024
       content = SecureRandom.random_bytes(length)
       file_name = FileNameHelper.name
@@ -59,11 +60,11 @@ describe Azure::Storage::File::FileService do
       file, body = subject.get_file(share_name, directory_name, file_name)
       _(file.name).must_equal file_name
       _(file.properties[:content_length]).must_equal length
-      _(file.properties[:content_type]).must_equal "text/plain; charset=ASCII-8BIT"
+      _(file.properties[:content_type]).must_equal 'text/plain; charset=ASCII-8BIT'
       _(Digest::MD5.hexdigest(body)).must_equal Digest::MD5.hexdigest(content)
     end
 
-    it "5MB string payload works" do
+    it '5MB string payload works' do
       length = 5 * 1024 * 1024
       content = SecureRandom.random_bytes(length)
       file_name = FileNameHelper.name
@@ -74,62 +75,60 @@ describe Azure::Storage::File::FileService do
       _(Digest::MD5.hexdigest(body)).must_equal Digest::MD5.hexdigest(content)
     end
 
-    it "IO payload works" do
-      begin
-        content = SecureRandom.hex(3 * 1024 * 1024)
-        length = content.size
-        file_name = FileNameHelper.name
-        local_file = File.open file_name, "w+"
-        local_file.write content
-        local_file.seek 0
-        subject.create_file_from_content share_name, directory_name, file_name, length, local_file
-        file, body = subject.get_file(share_name, directory_name, file_name)
-        _(file.name).must_equal file_name
-        _(file.properties[:content_length]).must_equal length
-        _(Digest::MD5.hexdigest(body)).must_equal Digest::MD5.hexdigest(content)
-      ensure
-        unless local_file.nil?
-          local_file.close
-          File.delete file_name
-        end
+    it 'IO payload works' do
+      content = SecureRandom.hex(3 * 1024 * 1024)
+      length = content.size
+      file_name = FileNameHelper.name
+      local_file = File.open file_name, 'w+'
+      local_file.write content
+      local_file.seek 0
+      subject.create_file_from_content share_name, directory_name, file_name, length, local_file
+      file, body = subject.get_file(share_name, directory_name, file_name)
+      _(file.name).must_equal file_name
+      _(file.properties[:content_length]).must_equal length
+      _(Digest::MD5.hexdigest(body)).must_equal Digest::MD5.hexdigest(content)
+    ensure
+      unless local_file.nil?
+        local_file.close
+        File.delete file_name
       end
     end
   end
 
-  describe "#create_file" do
+  describe '#create_file' do
     let(:share_name) { ShareNameHelper.name }
     let(:directory_name) { FileNameHelper.name }
     let(:file_name) { FileNameHelper.name }
     let(:file_length) { 1024 }
-    before {
+    before do
       subject.create_share share_name
       subject.create_directory share_name, directory_name
-    }
+    end
 
-    it "creates the file" do
+    it 'creates the file' do
       file = subject.create_file share_name, directory_name, file_name, file_length
       _(file.name).must_equal file_name
 
       file = subject.get_file_properties share_name, directory_name, file_name
       _(file.properties[:content_length]).must_equal file_length
-      _(file.properties[:content_type]).must_equal "application/octet-stream"
+      _(file.properties[:content_type]).must_equal 'application/octet-stream'
     end
 
-    it "creates the file with custom metadata" do
-      metadata = { "CustomMetadataProperty" => "CustomMetadataValue" }
-      file = subject.create_file share_name, directory_name, file_name, file_length, metadata: metadata
+    it 'creates the file with custom metadata' do
+      metadata = { 'CustomMetadataProperty' => 'CustomMetadataValue' }
+      file = subject.create_file(share_name, directory_name, file_name, file_length, metadata:)
 
       _(file.name).must_equal file_name
       _(file.metadata).must_equal metadata
       file = subject.get_file_metadata share_name, directory_name, file_name
 
-      metadata.each { |k, v|
+      metadata.each do |k, v|
         _(file.metadata).must_include k.downcase
         _(file.metadata[k.downcase]).must_equal v
-      }
+      end
     end
 
-    it "no errors if the file already exists" do
+    it 'no errors if the file already exists' do
       subject.create_file share_name, directory_name, file_name, file_length
       subject.create_file share_name, directory_name, file_name, file_length + file_length
       file = subject.get_file_properties share_name, directory_name, file_name
@@ -137,9 +136,9 @@ describe Azure::Storage::File::FileService do
       _(file.properties[:content_length]).must_equal file_length * 2
     end
 
-    it "errors if the difilerectory name is invalid" do
+    it 'errors if the difilerectory name is invalid' do
       assert_raises(Azure::Core::Http::HTTPError) do
-        subject.create_file share_name, directory_name, "this_file/cannot/exist!", file_length
+        subject.create_file share_name, directory_name, 'this_file/cannot/exist!', file_length
       end
     end
   end

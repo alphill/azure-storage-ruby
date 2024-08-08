@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -23,7 +24,7 @@
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
 def skip_if_emulator
-  if Azure.config.storage_table_host =~ /localhost/
-    skip "This test will only run in Live environment"
-  end
+  return unless /localhost/.match?(Azure.config.storage_table_host)
+
+  skip 'This test will only run in Live environment'
 end

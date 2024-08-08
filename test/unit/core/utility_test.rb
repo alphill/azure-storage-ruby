@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -18,23 +19,23 @@ require 'azure/core/utility'
 
 describe Azure::Core::Logger do
   subject { Azure::Core::Logger }
-  let(:msg) { "message" }
+  let(:msg) { 'message' }
 
-  after {
+  after do
     subject.initialize_external_logger(nil)
-  }
+  end
 
-  describe "Log without external logger" do
-    before {
+  describe 'Log without external logger' do
+    before do
       subject.initialize_external_logger(nil)
-    }
+    end
 
-    it "#info" do
+    it '#info' do
       out, _err = capture_io { subject.info(msg) }
       assert_equal("\e[37m\e[1m" + msg + "\e[0m\e[0m\n", out)
     end
 
-    it "#error_with_exit" do
+    it '#error_with_exit' do
       out, _err = capture_io do
         error = assert_raises(RuntimeError) do
           subject.error_with_exit(msg)
@@ -44,7 +45,7 @@ describe Azure::Core::Logger do
       assert_equal("\e[31m\e[1m" + msg + "\e[0m\e[0m\n", out)
     end
 
-    it "#warn" do
+    it '#warn' do
       out, _err = capture_io do
         warn = subject.warn(msg)
         assert_equal(msg, warn)
@@ -52,7 +53,7 @@ describe Azure::Core::Logger do
       assert_equal("\e[33m" + msg + "\e[0m\n", out)
     end
 
-    it "#error" do
+    it '#error' do
       out, _err = capture_io do
         error = subject.error(msg)
         assert_equal(msg, error)
@@ -60,7 +61,7 @@ describe Azure::Core::Logger do
       assert_equal("\e[31m\e[1m" + msg + "\e[0m\e[0m\n", out)
     end
 
-    it "#exception_message" do
+    it '#exception_message' do
       out, _err = capture_io do
         exception = assert_raises(RuntimeError) do
           subject.exception_message(msg)
@@ -70,25 +71,25 @@ describe Azure::Core::Logger do
       assert_equal("\e[31m\e[1m" + msg + "\e[0m\e[0m\n", out)
     end
 
-    it "#success" do
+    it '#success' do
       out, _err = capture_io { subject.success(msg) }
       assert_equal("\e[32m" + msg + "\n\e[0m", out)
     end
   end
 
-  describe "Log with external logger" do
+  describe 'Log with external logger' do
     let(:fake_output) { StringIO.new }
 
-    before {
+    before do
       subject.initialize_external_logger(Logger.new(fake_output))
-    }
+    end
 
-    it "#info" do
+    it '#info' do
       subject.info(msg)
       assert_match(/INFO -- : #{msg}\n/, fake_output.string)
     end
 
-    it "#error_with_exit" do
+    it '#error_with_exit' do
       error = assert_raises(RuntimeError) do
         subject.error_with_exit(msg)
       end
@@ -96,19 +97,19 @@ describe Azure::Core::Logger do
       assert_equal("\e[31m\e[1m" + msg + "\e[0m\e[0m", error.message)
     end
 
-    it "#warn" do
+    it '#warn' do
       warn = subject.warn(msg)
       assert_match(/WARN -- : #{msg}\n/, fake_output.string)
       assert_equal(msg, warn)
     end
 
-    it "#error" do
+    it '#error' do
       error = subject.error(msg)
       assert_match(/ERROR -- : #{msg}\n/, fake_output.string)
       assert_equal(msg, error)
     end
 
-    it "#exception_message" do
+    it '#exception_message' do
       exception = assert_raises(RuntimeError) do
         subject.exception_message(msg)
       end
@@ -116,7 +117,7 @@ describe Azure::Core::Logger do
       assert_equal("\e[31m\e[1m" + msg + "\e[0m\e[0m", exception.message)
     end
 
-    it "#success" do
+    it '#success' do
       subject.success(msg)
       assert_match(/INFO -- : #{msg}\n/, fake_output.string)
     end

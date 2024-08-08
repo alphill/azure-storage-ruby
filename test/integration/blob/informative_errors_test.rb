@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,27 +23,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/storage/blob/blob_service"
-require "azure/core/http/http_error"
+require 'integration/test_helper'
+require 'azure/storage/blob/blob_service'
+require 'azure/core/http/http_error'
 
 describe Azure::Storage::Blob::BlobService do
-  describe "#informative_errors_blob" do
+  describe '#informative_errors_blob' do
     subject { Azure::Storage::Blob::BlobService.create(SERVICE_CREATE_OPTIONS()) }
     after { ContainerNameHelper.clean }
     let(:container_name) { ContainerNameHelper.name }
 
-    it "exception message should be valid" do
+    it 'exception message should be valid' do
       subject.create_container container_name
 
       # creating the same container again should throw
       begin
         subject.create_container container_name
-        flunk "No exception"
-      rescue Azure::Core::Http::HTTPError => error
-        _(error.status_code).must_equal 409
-        _(error.type).must_equal "ContainerAlreadyExists"
-        _(error.description.start_with?("The specified container already exists.")).must_equal true
+        flunk 'No exception'
+      rescue Azure::Core::Http::HTTPError => e
+        _(e.status_code).must_equal 409
+        _(e.type).must_equal 'ContainerAlreadyExists'
+        _(e.description.start_with?('The specified container already exists.')).must_equal true
       end
     end
   end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,27 +23,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::Queue::QueueService do
   subject { Azure::Storage::Queue::QueueService.create(SERVICE_CREATE_OPTIONS()) }
 
-  describe "#clear_messages" do
+  describe '#clear_messages' do
     let(:queue_name) { QueueNameHelper.name }
-    before {
+    before do
       subject.create_queue queue_name
-      subject.create_message queue_name, "some random text " + QueueNameHelper.name
-    }
+      subject.create_message queue_name, 'some random text ' + QueueNameHelper.name
+    end
     after { QueueNameHelper.clean }
 
-    it "clears the queue" do
+    it 'clears the queue' do
       result = subject.clear_messages queue_name
       _(result).must_be_nil
       result = subject.peek_messages queue_name
       _(result).must_be_empty
     end
 
-    it "errors on an non-existent queue" do
+    it 'errors on an non-existent queue' do
       assert_raises(Azure::Core::Http::HTTPError) do
         subject.clear_messages QueueNameHelper.name
       end

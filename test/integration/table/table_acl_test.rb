@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,30 +23,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/core/http/http_error"
+require 'integration/test_helper'
+require 'azure/core/http/http_error'
 
 describe Azure::Storage::Table::TableService do
-  describe "#get/set_acl" do
+  describe '#get/set_acl' do
     subject { Azure::Storage::Table::TableService.create(SERVICE_CREATE_OPTIONS()) }
     let(:table_name) { TableNameHelper.name }
     let(:signed_identifier) {
       identifier = Azure::Storage::Common::Service::SignedIdentifier.new
-      identifier.id = "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI="
+      identifier.id = 'MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI='
       identifier.access_policy = Azure::Storage::Common::Service::AccessPolicy.new
-      identifier.access_policy.start = "2009-09-28T08:49:37.0000000Z"
-      identifier.access_policy.expiry = "2009-09-29T08:49:37.0000000Z"
-      identifier.access_policy.permission = "raud"
+      identifier.access_policy.start = '2009-09-28T08:49:37.0000000Z'
+      identifier.access_policy.expiry = '2009-09-29T08:49:37.0000000Z'
+      identifier.access_policy.permission = 'raud'
       identifier
     }
 
-    before {
+    before do
       subject.create_table table_name
-    }
+    end
     after { TableNameHelper.clean }
 
-    it "sets and gets the ACL for a table" do
-      subject.set_table_acl(table_name, signed_identifiers: [ signed_identifier ])
+    it 'sets and gets the ACL for a table' do
+      subject.set_table_acl(table_name, signed_identifiers: [signed_identifier])
 
       result = subject.get_table_acl table_name
       _(result).must_be_kind_of Array

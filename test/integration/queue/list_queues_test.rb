@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,30 +23,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::Queue::QueueService do
   subject { Azure::Storage::Queue::QueueService.create(SERVICE_CREATE_OPTIONS()) }
 
-  describe "#list_queues" do
+  describe '#list_queues' do
     let(:queue_names) { [QueueNameHelper.name, QueueNameHelper.name] }
     before { queue_names.each { |q| subject.create_queue q } }
     after { QueueNameHelper.clean }
 
-    it "lists the available queues" do
+    it 'lists the available queues' do
       expected_queues = 0
 
       # An empty next marker means to start at the beginning
-      next_marker = ""
+      next_marker = ''
       begin
         result = subject.list_queues(marker: next_marker)
-        result.each { |q|
+        result.each do |q|
           _(q.name).wont_be_nil
           expected_queues += 1 if queue_names.include? q.name
-        }
+        end
 
         next_marker = result.continuation_token
-      end while next_marker != ""
+      end while next_marker != ''
       _(expected_queues).must_equal queue_names.length
     end
   end

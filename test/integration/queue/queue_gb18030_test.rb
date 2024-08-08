@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,120 +23,107 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/storage/blob/blob_service"
+require 'integration/test_helper'
+require 'azure/storage/blob/blob_service'
 
-describe "Queue GB-18030" do
+describe 'Queue GB-18030' do
   subject { Azure::Storage::Queue::QueueService.create(SERVICE_CREATE_OPTIONS()) }
 
   let(:queue_name) { QueueNameHelper.name }
 
-  before {
+  before do
     subject.create_queue queue_name
-  }
+  end
 
-  it "Read/Write Queue Name UTF-8" do
+  it 'Read/Write Queue Name UTF-8' do
     # Expected results: Failure, because the Queue
     # name can only contain ASCII
     # characters, per the Queue Service spec.
-    GB18030TestStrings.get.each { |k, v|
-      begin
-        subject.create_queue queue_name + v.encode("UTF-8")
-        flunk "No exception"
-      rescue
-        # Add validation?
-      end
-    }
+    GB18030TestStrings.get.each do |_k, v|
+      subject.create_queue queue_name + v.encode('UTF-8')
+      flunk 'No exception'
+    rescue StandardError
+      # Add validation?
+    end
   end
 
-  it "Read/Write Queue Name GB-18030" do
+  it 'Read/Write Queue Name GB-18030' do
     # Expected results: Failure, because the Queue
     # name can only contain ASCII
     # characters, per the Queue Service spec.
-    GB18030TestStrings.get.each { |k, v|
-      begin
-        subject.create_queue queue_name + v.encode("GB18030")
-        flunk "No exception"
-      rescue
-        # Add validation?
-      end
-    }
+    GB18030TestStrings.get.each do |_k, v|
+      subject.create_queue queue_name + v.encode('GB18030')
+      flunk 'No exception'
+    rescue StandardError
+      # Add validation?
+    end
   end
 
-  it "Read/Write Queue Metadata UTF-8 key" do
-    GB18030TestStrings.get.each { |k, v|
-      begin
-        metadata = { "custommetadata" + v.encode("UTF-8") => "CustomMetadataValue" }
-        subject.set_queue_metadata queue_name, metadata
-        flunk "No exception"
-      rescue Azure::Core::Http::HTTPError => error
-        _(error.status_code).must_equal 400
-      end
-    }
+  it 'Read/Write Queue Metadata UTF-8 key' do
+    GB18030TestStrings.get.each do |_k, v|
+      metadata = { 'custommetadata' + v.encode('UTF-8') => 'CustomMetadataValue' }
+      subject.set_queue_metadata queue_name, metadata
+      flunk 'No exception'
+    rescue Azure::Core::Http::HTTPError => e
+      _(e.status_code).must_equal 400
+    end
   end
 
-  it "Read/Write Queue Metadata GB-18030 key" do
-    GB18030TestStrings.get.each { |k, v|
-      begin
-        metadata = { "custommetadata" + v.encode("GB18030") => "CustomMetadataValue" }
-        subject.set_queue_metadata queue_name, metadata
-        flunk "No exception"
-      rescue Azure::Core::Http::HTTPError => error
-        _(error.status_code).must_equal 400
-      end
-    }
+  it 'Read/Write Queue Metadata GB-18030 key' do
+    GB18030TestStrings.get.each do |_k, v|
+      metadata = { 'custommetadata' + v.encode('GB18030') => 'CustomMetadataValue' }
+      subject.set_queue_metadata queue_name, metadata
+      flunk 'No exception'
+    rescue Azure::Core::Http::HTTPError => e
+      _(e.status_code).must_equal 400
+    end
   end
 
-  it "Read/Write Queue Metadata UTF-8 value" do
-    GB18030TestStrings.get.each { |k, v|
-      begin
-        metadata = { "custommetadata" => "CustomMetadataValue" + v.encode("UTF-8") }
-        subject.set_queue_metadata queue_name, metadata
-        flunk "No exception"
-      rescue Azure::Core::Http::HTTPError => error
-        # TODO: Error should really be 400
-        _(error.status_code).must_equal 403
-      end
-    }
+  it 'Read/Write Queue Metadata UTF-8 value' do
+    GB18030TestStrings.get.each do |_k, v|
+      metadata = { 'custommetadata' => 'CustomMetadataValue' + v.encode('UTF-8') }
+      subject.set_queue_metadata queue_name, metadata
+      flunk 'No exception'
+    rescue Azure::Core::Http::HTTPError => e
+      # TODO: Error should really be 400
+      _(e.status_code).must_equal 403
+    end
   end
 
-  it "Read/Write Queue Metadata GB-18030 value" do
-    GB18030TestStrings.get.each { |k, v|
-      begin
-        metadata = { "custommetadata" => "CustomMetadataValue" + v.encode("GB18030") }
-        subject.set_queue_metadata queue_name, metadata
-        flunk "No exception"
-      rescue Azure::Core::Http::HTTPError => error
-        # TODO: Error should really be 400
-        _(error.status_code).must_equal 403
-      end
-    }
+  it 'Read/Write Queue Metadata GB-18030 value' do
+    GB18030TestStrings.get.each do |_k, v|
+      metadata = { 'custommetadata' => 'CustomMetadataValue' + v.encode('GB18030') }
+      subject.set_queue_metadata queue_name, metadata
+      flunk 'No exception'
+    rescue Azure::Core::Http::HTTPError => e
+      # TODO: Error should really be 400
+      _(e.status_code).must_equal 403
+    end
   end
 
-  it "Read/Write Queue Content UTF-8" do
-    GB18030TestStrings.get.each { |k, v|
-      content = v.encode("UTF-8")
+  it 'Read/Write Queue Content UTF-8' do
+    GB18030TestStrings.get.each do |_k, v|
+      content = v.encode('UTF-8')
       subject.create_message queue_name, content
       messages = subject.list_messages queue_name, 500
       message = messages.first
       returned_content = message.message_text
       _(returned_content).must_equal content
       subject.delete_message queue_name, message.id, message.pop_receipt
-    }
+    end
   end
 
   # Fails because of
   # https://github.com/appfog/azure-sdk-for-ruby/issues/295
-  it "Read/Write Queue Content GB18030" do
-    GB18030TestStrings.get.each { |k, v|
-      content = v.encode("GB18030")
+  it 'Read/Write Queue Content GB18030' do
+    GB18030TestStrings.get.each do |_k, v|
+      content = v.encode('GB18030')
       subject.create_message queue_name, content
       messages = subject.list_messages queue_name, 500
       message = messages.first
       returned_content = message.message_text
-      _(returned_content.encode("UTF-8")).must_equal content.encode("UTF-8")
+      _(returned_content.encode('UTF-8')).must_equal content.encode('UTF-8')
       subject.delete_message queue_name, message.id, message.pop_receipt
-    }
+    end
   end
-
 end

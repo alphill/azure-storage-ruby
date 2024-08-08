@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,26 +23,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/core/http/http_error"
+require 'integration/test_helper'
+require 'azure/core/http/http_error'
 
 describe Azure::Storage::Queue::QueueService do
   subject { Azure::Storage::Queue::QueueService.create(SERVICE_CREATE_OPTIONS()) }
 
-  describe "#informative_errors_queue" do
+  describe '#informative_errors_queue' do
     let(:queue_name) { QueueNameHelper.name }
     after { QueueNameHelper.clean }
 
-    it "exception message should be valid" do
+    it 'exception message should be valid' do
       # getting metadata from a non existent should throw
-      begin
-        subject.get_queue_metadata queue_name
-        flunk "No exception"
-      rescue Azure::Core::Http::HTTPError => error
-        _(error.status_code).must_equal 404
-        _(error.type).must_equal "QueueNotFound"
-        _(error.description.start_with?("The specified queue does not exist.")).must_equal true
-      end
+
+      subject.get_queue_metadata queue_name
+      flunk 'No exception'
+    rescue Azure::Core::Http::HTTPError => e
+      _(e.status_code).must_equal 404
+      _(e.type).must_equal 'QueueNotFound'
+      _(e.description.start_with?('The specified queue does not exist.')).must_equal true
     end
   end
 end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,44 +23,44 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/storage/blob/blob_service"
+require 'integration/test_helper'
+require 'azure/storage/blob/blob_service'
 
 describe Azure::Storage::Blob::BlobService do
   subject { Azure::Storage::Blob::BlobService.create(SERVICE_CREATE_OPTIONS()) }
   after { ContainerNameHelper.clean }
 
-  describe "#delete_container" do
-    it "deletes the container" do
+  describe '#delete_container' do
+    it 'deletes the container' do
       container_name = ContainerNameHelper.name
       subject.create_container container_name
       result = subject.delete_container container_name
       _(result).must_be_nil
     end
 
-    it "errors if the container does not exist" do
+    it 'errors if the container does not exist' do
       assert_raises(Azure::Core::Http::HTTPError) do
         subject.delete_container ContainerNameHelper.name
       end
     end
 
-    it "lease id works for delete_container" do
+    it 'lease id works for delete_container' do
       container_name = ContainerNameHelper.name
       subject.create_container container_name
       lease_id = subject.acquire_container_lease container_name
       subject.release_container_lease container_name, lease_id
       new_lease_id = subject.acquire_container_lease container_name
       # assert wrong lease fails
-      status_code = ""
-      description = ""
+      status_code = ''
+      description = ''
       begin
-        subject.delete_container container_name, lease_id: lease_id
+        subject.delete_container(container_name, lease_id:)
       rescue Azure::Core::Http::HTTPError => e
         status_code = e.status_code.to_s
         description = e.description
       end
-      _(status_code).must_equal "412"
-      _(description).must_include "The lease ID specified did not match the lease ID for the container."
+      _(status_code).must_equal '412'
+      _(description).must_include 'The lease ID specified did not match the lease ID for the container.'
       # assert right lease succeeds
       subject.delete_container container_name, lease_id: new_lease_id
     end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -21,13 +22,13 @@ describe Azure::Core::Auth::SharedKeyLite do
 
   let(:verb) { 'POST' }
   let(:uri) { URI.parse 'http://dummy.uri/resource' }
-  let(:headers) do
+  let(:headers) {
     {
       'Content-MD5' => 'foo',
       'Content-Type' => 'foo',
       'Date' => 'foo'
     }
-  end
+  }
   let(:headers_without_date) {
     headers_without_date = headers.clone
     headers_without_date.delete 'Date'
@@ -40,7 +41,13 @@ describe Azure::Core::Auth::SharedKeyLite do
     end
 
     it 'ignores standard headers other than Content-MD5, Content-Type, and Date' do
-      _(subject.sign(verb, uri, headers.merge({'Content-Encoding' => 'foo'}))).must_equal 'account-name:vVFnj/+27JFABZgpt5H8g/JVU2HuWFnjv5aeUIxQvBE='
+      _(
+        subject.sign(
+          verb,
+          uri,
+          headers.merge({ 'Content-Encoding' => 'foo' })
+        )
+      ).must_equal 'account-name:vVFnj/+27JFABZgpt5H8g/JVU2HuWFnjv5aeUIxQvBE='
     end
 
     it 'throws IndexError when there is no Date header' do

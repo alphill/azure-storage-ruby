@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,26 +23,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/core/http/http_error"
+require 'integration/test_helper'
+require 'azure/core/http/http_error'
 
 describe Azure::Storage::Table::TableService do
-  describe "#informative_errors_table" do
+  describe '#informative_errors_table' do
     subject { Azure::Storage::Table::TableService.create(SERVICE_CREATE_OPTIONS()) }
     let(:table_name) { TableNameHelper.name }
     after { TableNameHelper.clean }
 
-    it "exception message should be valid" do
+    it 'exception message should be valid' do
       subject.create_table(table_name)
 
       # creating the same table again should throw
       begin
         subject.create_table(table_name)
-        flunk "No exception"
-      rescue Azure::Core::Http::HTTPError => error
-        _(error.status_code).must_equal 409
-        _(error.type).must_equal "TableAlreadyExists"
-        _(error.description.include?("The table specified already exists.")).must_equal true
+        flunk 'No exception'
+      rescue Azure::Core::Http::HTTPError => e
+        _(e.status_code).must_equal 409
+        _(e.type).must_equal 'TableAlreadyExists'
+        _(e.description.include?('The table specified already exists.')).must_equal true
       end
     end
   end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,43 +23,41 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/storage/blob/blob_service"
-require "azure/core/http/http_error"
+require 'integration/test_helper'
+require 'azure/storage/blob/blob_service'
+require 'azure/core/http/http_error'
 
 describe Azure::Storage::Blob::BlobService do
   subject { Azure::Storage::Blob::BlobService.create(SERVICE_CREATE_OPTIONS()) }
 
-  let(:container_name) { "$root" }
-  let(:blob_name1) { "blobname1" }
+  let(:container_name) { '$root' }
+  let(:blob_name1) { 'blobname1' }
   let(:length) { 1024 }
-  let(:blob_name2) { "blobname2" }
+  let(:blob_name2) { 'blobname2' }
   let(:length) { 1024 }
-  let(:blob_name3) { "blobname3" }
+  let(:blob_name3) { 'blobname3' }
   let(:length) { 1024 }
 
-  after {
-    subject.delete_container "$root"
-  }
+  after do
+    subject.delete_container '$root'
+  end
 
-  it "creates the container with explicit name and some blobs" do
-    begin
-      container = subject.create_container container_name
-      _(container.name).must_equal container_name
-      # explicit root container name
-      blob = subject.create_page_blob container_name, blob_name1, length
-      _(blob.name).must_equal blob_name1
+  it 'creates the container with explicit name and some blobs' do
+    container = subject.create_container container_name
+    _(container.name).must_equal container_name
+    # explicit root container name
+    blob = subject.create_page_blob container_name, blob_name1, length
+    _(blob.name).must_equal blob_name1
 
-      # nil container name
-      blob = subject.create_page_blob nil, blob_name2, length
-      _(blob.name).must_equal blob_name2
+    # nil container name
+    blob = subject.create_page_blob nil, blob_name2, length
+    _(blob.name).must_equal blob_name2
 
-      # empty string container name
-      blob = subject.create_page_blob "", blob_name3, length
-      _(blob.name).must_equal blob_name3
-    rescue Azure::Core::Http::HTTPError => error
-      puts error.message
-      _(error.status_code).must_equal 409
-    end
+    # empty string container name
+    blob = subject.create_page_blob '', blob_name3, length
+    _(blob.name).must_equal blob_name3
+  rescue Azure::Core::Http::HTTPError => e
+    puts e.message
+    _(e.status_code).must_equal 409
   end
 end

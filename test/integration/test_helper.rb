@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,27 +23,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "test_helper"
-require "azure/storage/blob"
-require "azure/storage/file"
-require "azure/storage/table"
-require "azure/storage/queue"
+require 'test_helper'
+require 'azure/storage/blob'
+require 'azure/storage/file'
+require 'azure/storage/table'
+require 'azure/storage/queue'
 
-def SERVICE_CREATE_OPTIONS()
-  { storage_account_name: ENV.fetch("AZURE_STORAGE_ACCOUNT"), storage_access_key: ENV.fetch("AZURE_STORAGE_ACCESS_KEY") }
+def SERVICE_CREATE_OPTIONS
+  { storage_account_name: ENV.fetch('AZURE_STORAGE_ACCOUNT'), storage_access_key: ENV.fetch('AZURE_STORAGE_ACCESS_KEY') }
 end
 
 def is_boolean(value)
-  (value == true || value == false) == true
+  [true, false].include?(value) == true
 end
 
-require "azure/core/http/http_filter"
+require 'azure/core/http/http_filter'
 
 module Azure::Storage
   class DuplicateRequestFilter < Azure::Core::Http::HttpFilter
     def initialize(callable = nil)
       @callable = callable
     end
+
     def call(req, _next)
       begin
         r = _next.call

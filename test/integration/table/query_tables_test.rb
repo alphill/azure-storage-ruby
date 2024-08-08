@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,17 +23,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/core/http/http_error"
+require 'integration/test_helper'
+require 'azure/core/http/http_error'
 
 describe Azure::Storage::Table::TableService do
-  describe "#query_tables" do
+  describe '#query_tables' do
     subject { Azure::Storage::Table::TableService.create(SERVICE_CREATE_OPTIONS()) }
     let(:tables) { [TableNameHelper.name, TableNameHelper.name] }
     before { tables.each { |t| subject.create_table t } }
     after { TableNameHelper.clean }
 
-    it "gets a list of tables for the account" do
+    it 'gets a list of tables for the account' do
       result = subject.query_tables
 
       while result.continuation_token
@@ -42,12 +43,12 @@ describe Azure::Storage::Table::TableService do
       end
       _(result).must_be_kind_of Array
 
-      tables.each { |t|
-        table = result.find { |c|
-          c["TableName"] == t
-        }
+      tables.each do |t|
+        table = result.find do |c|
+          c['TableName'] == t
+        end
         _(table).wont_be_nil
-      }
+      end
     end
   end
 end

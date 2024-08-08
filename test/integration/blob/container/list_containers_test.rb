@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,71 +23,71 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/storage/blob/blob_service"
+require 'integration/test_helper'
+require 'azure/storage/blob/blob_service'
 
 describe Azure::Storage::Blob::BlobService do
   subject { Azure::Storage::Blob::BlobService.create(SERVICE_CREATE_OPTIONS()) }
   after { ContainerNameHelper.clean }
 
-  describe "#list_containers" do
+  describe '#list_containers' do
     let(:container_names) { [ContainerNameHelper.name, ContainerNameHelper.name] }
-    let(:metadata) { { "CustomMetadataProperty" => "CustomMetadataValue" } }
-    let(:public_access_level) { "blob" }
-    before {
-      container_names.each { |c|
-        subject.create_container c, metadata: metadata, public_access_level: public_access_level
-      }
-    }
+    let(:metadata) { { 'CustomMetadataProperty' => 'CustomMetadataValue' } }
+    let(:public_access_level) { 'blob' }
+    before do
+      container_names.each do |c|
+        subject.create_container c, metadata:, public_access_level:
+      end
+    end
 
-    it "lists the containers for the account" do
+    it 'lists the containers for the account' do
       result = subject.list_containers
 
       found = 0
-      result.each { |c|
+      result.each do |c|
         found += 1 if container_names.include? c.name
-        _(c.public_access_level).must_equal "blob" if container_names.include? c.name
-      }
+        _(c.public_access_level).must_equal 'blob' if container_names.include? c.name
+      end
       _(found).must_equal container_names.length
     end
 
-    it "lists the containers for the account with prefix" do
+    it 'lists the containers for the account with prefix' do
       result = subject.list_containers(prefix: container_names[0])
 
       found = 0
-      result.each { |c|
+      result.each do |c|
         found += 1 if container_names.include? c.name
-        _(c.public_access_level).must_equal "blob" if container_names.include? c.name
-      }
+        _(c.public_access_level).must_equal 'blob' if container_names.include? c.name
+      end
 
       _(found).must_equal 1
     end
 
-    it "lists the containers for the account with max results" do
+    it 'lists the containers for the account with max results' do
       result = subject.list_containers(max_results: 1)
       _(result.length).must_equal 1
       first_container = result[0]
-      result.continuation_token.wont_equal("")
+      result.continuation_token.wont_equal('')
 
       result = subject.list_containers(max_results: 1, marker: result.continuation_token)
       _(result.length).must_equal 1
       result[0].name.wont_equal first_container.name
     end
 
-    it "returns metadata if the :metadata=>true option is used" do
+    it 'returns metadata if the :metadata=>true option is used' do
       result = subject.list_containers(metadata: true)
 
       found = 0
-      result.each { |c|
-        if container_names.include? c.name
-          found += 1
-          metadata.each { |k, v|
-            _(c.metadata).must_include k.downcase
-            _(c.metadata[k.downcase]).must_equal v
-          }
-          _(c.public_access_level).must_equal "blob"
+      result.each do |c|
+        next unless container_names.include? c.name
+
+        found += 1
+        metadata.each do |k, v|
+          _(c.metadata).must_include k.downcase
+          _(c.metadata[k.downcase]).must_equal v
         end
-      }
+        _(c.public_access_level).must_equal 'blob'
+      end
       _(found).must_equal container_names.length
     end
   end

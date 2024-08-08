@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,120 +23,120 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/core/http/http_error"
+require 'integration/test_helper'
+require 'azure/core/http/http_error'
 
 describe Azure::Storage::Table::TableService do
-  describe "#get_entity_batch" do
+  describe '#get_entity_batch' do
     subject { Azure::Storage::Table::TableService.create(SERVICE_CREATE_OPTIONS()) }
     let(:table_name) { TableNameHelper.name }
 
     let(:entity_properties) {
       {
-        "PartitionKey" => "testingpartition",
-        "RowKey" => "abcd123",
-        "CustomDoubleProperty" => 3.141592,
-        "CustomDoubleTrailingZeroProperty" => 1.0,
-        "CustomDoublePrecisionProperty" => 1.012345678901234567890,
-        "CustomInt32Property" => 37,
-        "CustomInt64Property" => 2**32,
-        "CustomInt64NegProperty" => -(2**32),
-        "CustomGUIDProperty" => Azure::Storage::Table::GUID.new("81425519-6394-43e4-ac6e-28d91f5c3921"),
-        "CustomStringProperty" => "CustomPropertyValue",
-        "CustomBinaryProperty" => "\x01\x02\x03".force_encoding("BINARY"),
-        "CustomDateProperty" => Time.now,
-        "CustomDatePrecisionProperty" => Time.at(946684800, 123456.7),
-        "CustomIntegerProperty" => 37,
-        "CustomTrueProperty" => true,
-        "CustomFalseProperty" => false,
-        "CustomNilProperty" => nil
+        'PartitionKey' => 'testingpartition',
+        'RowKey' => 'abcd123',
+        'CustomDoubleProperty' => 3.141592,
+        'CustomDoubleTrailingZeroProperty' => 1.0,
+        'CustomDoublePrecisionProperty' => 1.012345678901234567890,
+        'CustomInt32Property' => 37,
+        'CustomInt64Property' => 2**32,
+        'CustomInt64NegProperty' => -(2**32),
+        'CustomGUIDProperty' => Azure::Storage::Table::GUID.new('81425519-6394-43e4-ac6e-28d91f5c3921'),
+        'CustomStringProperty' => 'CustomPropertyValue',
+        'CustomBinaryProperty' => "\x01\x02\x03".force_encoding('BINARY'),
+        'CustomDateProperty' => Time.now,
+        'CustomDatePrecisionProperty' => Time.at(946_684_800, 123_456.7),
+        'CustomIntegerProperty' => 37,
+        'CustomTrueProperty' => true,
+        'CustomFalseProperty' => false,
+        'CustomNilProperty' => nil
       }
     }
 
-    before {
+    before do
       subject.create_table table_name
       subject.insert_entity table_name, entity_properties
-    }
+    end
     after { TableNameHelper.clean }
 
-    it "gets an entity" do
-      batch = Azure::Storage::Table::Batch.new table_name, entity_properties["PartitionKey"]
-      batch.get entity_properties["RowKey"]
+    it 'gets an entity' do
+      batch = Azure::Storage::Table::Batch.new table_name, entity_properties['PartitionKey']
+      batch.get entity_properties['RowKey']
       results = subject.execute_batch batch
       _(results[0]).must_be_kind_of Azure::Storage::Table::Entity
-      entity_properties.each { |k, v|
+      entity_properties.each do |k, _v|
         if entity_properties[k].class == Time
           _(floor_to(results[0].properties[k].to_f, 6)).must_equal floor_to(entity_properties[k].to_f, 6)
         else
           _(results[0].properties[k]).must_equal entity_properties[k]
         end
-      }
+      end
     end
 
     def floor_to(num, x)
-      (num * 10**x).floor.to_f / 10**x
+      (num * (10**x)).floor.to_f / (10**x)
     end
 
-    it "errors on an invalid table name" do
+    it 'errors on an invalid table name' do
       assert_raises(RuntimeError) do
-        batch = Azure::Storage::Table::Batch.new "this_table.cannot-exist!", entity_properties["PartitionKey"]
-        batch.get entity_properties["RowKey"], entity_properties
+        batch = Azure::Storage::Table::Batch.new 'this_table.cannot-exist!', entity_properties['PartitionKey']
+        batch.get entity_properties['RowKey'], entity_properties
         results = subject.execute_batch batch
       end
     end
 
-    it "errors on an invalid partition key" do
-      assert_raises(RuntimeError) do
-        entity = entity_properties.dup
-        entity["PartitionKey"] = "this/partition\\key#is?invalid"
-
-        batch = Azure::Storage::Table::Batch.new table_name, entity["PartitionKey"]
-        batch.get entity["RowKey"], entity
-        results = subject.execute_batch batch
-      end
-    end
-
-    it "errors on an invalid row key" do
+    it 'errors on an invalid partition key' do
       assert_raises(RuntimeError) do
         entity = entity_properties.dup
-        entity["RowKey"] = "this/row\\key#is?invalid"
+        entity['PartitionKey'] = 'this/partition\\key#is?invalid'
 
-        batch = Azure::Storage::Table::Batch.new table_name, entity["PartitionKey"]
-        batch.get entity["RowKey"], entity
+        batch = Azure::Storage::Table::Batch.new table_name, entity['PartitionKey']
+        batch.get entity['RowKey'], entity
         results = subject.execute_batch batch
       end
     end
 
-    it "errors on more than one query operation" do
+    it 'errors on an invalid row key' do
+      assert_raises(RuntimeError) do
+        entity = entity_properties.dup
+        entity['RowKey'] = 'this/row\\key#is?invalid'
+
+        batch = Azure::Storage::Table::Batch.new table_name, entity['PartitionKey']
+        batch.get entity['RowKey'], entity
+        results = subject.execute_batch batch
+      end
+    end
+
+    it 'errors on more than one query operation' do
       assert_raises(Azure::Storage::Common::Core::StorageError) do
         entity1 = entity_properties.dup
         entity2 = entity_properties.dup
-        entity1["RowKey"] = "abcd123"
-        entity2["RowKey"] = "abcd124"
+        entity1['RowKey'] = 'abcd123'
+        entity2['RowKey'] = 'abcd124'
 
-        batch = Azure::Storage::Table::Batch.new table_name, entity1["PartitionKey"]
-        batch.get entity1["RowKey"]
-        batch.get entity2["RowKey"]
+        batch = Azure::Storage::Table::Batch.new table_name, entity1['PartitionKey']
+        batch.get entity1['RowKey']
+        batch.get entity2['RowKey']
       end
 
       assert_raises(ArgumentError) do
         entity = entity_properties.dup
-        entity["RowKey"] = "abcd123"
+        entity['RowKey'] = 'abcd123'
 
-        batch = Azure::Storage::Table::Batch.new table_name, entity["PartitionKey"]
-        batch.get entity["RowKey"]
-        batch.get entity["RowKey"]
+        batch = Azure::Storage::Table::Batch.new table_name, entity['PartitionKey']
+        batch.get entity['RowKey']
+        batch.get entity['RowKey']
       end
 
       assert_raises(Azure::Storage::Common::Core::StorageError) do
         entity1 = entity_properties.dup
         entity2 = entity_properties.dup
-        entity1["RowKey"] = "abcd123"
-        entity2["RowKey"] = "abcd124"
+        entity1['RowKey'] = 'abcd123'
+        entity2['RowKey'] = 'abcd124'
 
-        batch = Azure::Storage::Table::Batch.new table_name, entity1["PartitionKey"]
-        batch.get entity1["RowKey"]
-        batch.insert entity2["RowKey"], entity2
+        batch = Azure::Storage::Table::Batch.new table_name, entity1['PartitionKey']
+        batch.get entity1['RowKey']
+        batch.insert entity2['RowKey'], entity2
       end
     end
   end

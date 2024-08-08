@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,19 +23,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::File::FileService do
   subject { Azure::Storage::File::FileService.create(SERVICE_CREATE_OPTIONS()) }
   after { ShareNameHelper.clean }
 
-  describe "#delete_share" do
+  describe '#delete_share' do
     let(:share_name) { ShareNameHelper.name }
-    before {
+    before do
       subject.create_share share_name
-    }
+    end
 
-    it "deletes the share" do
+    it 'deletes the share' do
       share = subject.get_share_stats share_name
       _(share.usage).must_equal 0
 
@@ -46,7 +47,7 @@ describe Azure::Storage::File::FileService do
       end
     end
 
-    it "errors if the share does not exist" do
+    it 'errors if the share does not exist' do
       assert_raises(Azure::Core::Http::HTTPError) do
         subject.delete_share FileNameHelper.name
       end

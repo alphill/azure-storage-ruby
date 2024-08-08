@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,8 +23,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "ostruct"
-require "minitest/unit"
+require 'ostruct'
+require 'minitest/unit'
 
 module Stubs
   def double(messages = {})
@@ -34,17 +35,17 @@ end
 class MiniTest::Mock
   def stub(name, value = nil)
     metaclass = class << self; self; end
-    metaclass.send :define_method, name do |*args|
+    metaclass.send :define_method, name do |*_args|
       value
     end
   end
 
-  alias_method :expect_without_stub_support, :expect
+  alias expect_without_stub_support expect
 
-  def expect(name, *args)
+  def expect(name, *)
     metaclass = class << self; self; end
     metaclass.send :undef_method, name if respond_to?(name)
-    expect_without_stub_support(name, *args)
+    expect_without_stub_support(name, *)
   end
 end
 

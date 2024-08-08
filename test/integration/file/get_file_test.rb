@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,39 +23,43 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "digest/md5"
+require 'integration/test_helper'
+require 'digest/md5'
 
 describe Azure::Storage::File::FileService do
   subject { Azure::Storage::File::FileService.create(SERVICE_CREATE_OPTIONS()) }
   after { ShareNameHelper.clean }
 
-  describe "#get_file" do
+  describe '#get_file' do
     let(:share_name) { ShareNameHelper.name }
     let(:directory_name) { FileNameHelper.name }
-    let(:file_name) { "filename" }
+    let(:file_name) { 'filename' }
     let(:file_length) { 1024 }
-    let(:content) { content = ""; file_length.times.each { |i| content << "@" }; content }
-    let(:metadata) { { "CustomMetadataProperty" => "CustomMetadataValue" } }
+    let(:content) {
+      content = ''
+      file_length.times.each { |_i| content << '@' }
+      content
+    }
+    let(:metadata) { { 'CustomMetadataProperty' => 'CustomMetadataValue' } }
     let(:full_md5) { Digest::MD5.base64digest(content) }
-    let(:options) { { content_type: "application/foo", metadata: metadata, content_md5: full_md5 } }
+    let(:options) { { content_type: 'application/foo', metadata:, content_md5: full_md5 } }
 
-    before {
+    before do
       subject.create_share share_name
       subject.create_directory share_name, directory_name
       subject.create_file share_name, directory_name, file_name, file_length, options
       subject.put_file_range share_name, directory_name, file_name, 0, file_length - 1, content
-    }
-
-    it "retrieves the file properties, metadata, and contents" do
-      file, returned_content = subject.get_file share_name, directory_name, file_name
-      _(returned_content).must_equal content
-      _(file.metadata).must_include "custommetadataproperty"
-      _(file.metadata["custommetadataproperty"]).must_equal "CustomMetadataValue"
-      _(file.properties[:content_type]).must_equal "application/foo"
     end
 
-    it "retrieves a range of data from the file" do
+    it 'retrieves the file properties, metadata, and contents' do
+      file, returned_content = subject.get_file share_name, directory_name, file_name
+      _(returned_content).must_equal content
+      _(file.metadata).must_include 'custommetadataproperty'
+      _(file.metadata['custommetadataproperty']).must_equal 'CustomMetadataValue'
+      _(file.properties[:content_type]).must_equal 'application/foo'
+    end
+
+    it 'retrieves a range of data from the file' do
       file, returned_content = subject.get_file share_name, directory_name, file_name, start_range: 0, end_range: 511, get_content_md5: true
       _(returned_content.length).must_equal 512
       _(returned_content).must_equal content[0..511]

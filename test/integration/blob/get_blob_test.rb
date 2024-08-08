@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,36 +23,40 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/storage/blob/blob_service"
-require "azure/core/http/http_error"
-require "digest/md5"
+require 'integration/test_helper'
+require 'azure/storage/blob/blob_service'
+require 'azure/core/http/http_error'
+require 'digest/md5'
 
 describe Azure::Storage::Blob::BlobService do
   subject { Azure::Storage::Blob::BlobService.create(SERVICE_CREATE_OPTIONS()) }
   after { ContainerNameHelper.clean }
 
-  describe "#get_blob" do
+  describe '#get_blob' do
     let(:container_name) { ContainerNameHelper.name }
-    let(:blob_name) { "blobname" }
-    let(:content) { content = ""; 1024.times.each { |i| content << "@" }; content }
-    let(:metadata) { { "CustomMetadataProperty" => "CustomMetadataValue" } }
-    let(:options) { { content_type: "application/foo", metadata: metadata } }
+    let(:blob_name) { 'blobname' }
+    let(:content) {
+      content = ''
+      1024.times.each { |_i| content << '@' }
+      content
+    }
+    let(:metadata) { { 'CustomMetadataProperty' => 'CustomMetadataValue' } }
+    let(:options) { { content_type: 'application/foo', metadata: } }
 
-    before {
+    before do
       subject.create_container container_name
       subject.create_block_blob container_name, blob_name, content, options
-    }
-
-    it "retrieves the blob properties, metadata, and contents" do
-      blob, returned_content = subject.get_blob container_name, blob_name
-      _(returned_content).must_equal content
-      _(blob.metadata).must_include "custommetadataproperty"
-      _(blob.metadata["custommetadataproperty"]).must_equal "CustomMetadataValue"
-      _(blob.properties[:content_type]).must_equal "application/foo"
     end
 
-    it "retrieves a range of data from the blob" do
+    it 'retrieves the blob properties, metadata, and contents' do
+      blob, returned_content = subject.get_blob container_name, blob_name
+      _(returned_content).must_equal content
+      _(blob.metadata).must_include 'custommetadataproperty'
+      _(blob.metadata['custommetadataproperty']).must_equal 'CustomMetadataValue'
+      _(blob.properties[:content_type]).must_equal 'application/foo'
+    end
+
+    it 'retrieves a range of data from the blob' do
       blob, returned_content = subject.get_blob container_name, blob_name, start_range: 0, end_range: 511, get_content_md5: true
       _(is_boolean(blob.encrypted)).must_equal true
       _(returned_content.length).must_equal 512
@@ -60,11 +65,11 @@ describe Azure::Storage::Blob::BlobService do
       _(blob.properties[:content_md5]).must_equal Digest::MD5.base64digest(content)
     end
 
-    it "retrieves a snapshot of data from the blob" do
+    it 'retrieves a snapshot of data from the blob' do
       snapshot = subject.create_blob_snapshot container_name, blob_name
 
-      content2 = ""
-      1024.times.each { |i| content2 << "!" }
+      content2 = ''
+      1024.times.each { |_i| content2 << '!' }
       subject.create_block_blob container_name, blob_name, content2, options
 
       blob, returned_content = subject.get_blob container_name, blob_name, start_range: 0, end_range: 511
@@ -72,27 +77,27 @@ describe Azure::Storage::Blob::BlobService do
       _(returned_content.length).must_equal 512
       _(returned_content).must_equal content2[0..511]
 
-      blob, returned_content = subject.get_blob container_name, blob_name, start_range: 0, end_range: 511, snapshot: snapshot
+      blob, returned_content = subject.get_blob(container_name, blob_name, start_range: 0, end_range: 511, snapshot:)
       _(is_boolean(blob.encrypted)).must_equal true
 
       _(returned_content.length).must_equal 512
       _(returned_content).must_equal content[0..511]
     end
 
-    it "read failure with if_none_match: *" do
-      status_code = ""
-      description = ""
+    it 'read failure with if_none_match: *' do
+      status_code = ''
+      description = ''
       begin
-        blob = subject.get_blob container_name, blob_name, if_none_match: "*"
+        blob = subject.get_blob container_name, blob_name, if_none_match: '*'
       rescue Azure::Core::Http::HTTPError => e
         status_code = e.status_code.to_s
         description = e.description
       end
-      _(status_code).must_equal "400"
-      _(description).must_include "The request includes an unsatisfiable condition for this operation."
+      _(status_code).must_equal '400'
+      _(description).must_include 'The request includes an unsatisfiable condition for this operation.'
     end
 
-    it "lease id works for get_blob" do
+    it 'lease id works for get_blob' do
       block_blob_name = BlobNameHelper.name
       subject.create_block_blob container_name, block_blob_name, content
       # acquire lease for blob
@@ -100,16 +105,16 @@ describe Azure::Storage::Blob::BlobService do
       subject.release_blob_lease container_name, block_blob_name, lease_id
       new_lease_id = subject.acquire_blob_lease container_name, block_blob_name
       # assert no lease fails
-      status_code = ""
-      description = ""
+      status_code = ''
+      description = ''
       begin
-        subject.get_blob container_name, block_blob_name, lease_id: lease_id
+        subject.get_blob(container_name, block_blob_name, lease_id:)
       rescue Azure::Core::Http::HTTPError => e
         status_code = e.status_code.to_s
         description = e.description
       end
-      _(status_code).must_equal "412"
-      _(description).must_include "The lease ID specified did not match the lease ID for the blob."
+      _(status_code).must_equal '412'
+      _(description).must_include 'The lease ID specified did not match the lease ID for the blob.'
       # assert correct lease works
       blob, body = subject.get_blob container_name, block_blob_name, lease_id: new_lease_id
       _(blob.name).must_equal block_blob_name

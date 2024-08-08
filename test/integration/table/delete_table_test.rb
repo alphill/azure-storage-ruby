@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,17 +23,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/core/http/http_error"
+require 'integration/test_helper'
+require 'azure/core/http/http_error'
 
 describe Azure::Storage::Table::TableService do
-  describe "#delete_table" do
+  describe '#delete_table' do
     subject { Azure::Storage::Table::TableService.create(SERVICE_CREATE_OPTIONS()) }
     let(:table_name) { TableNameHelper.name }
     before { subject.create_table table_name }
     after { TableNameHelper.clean }
 
-    it "deletes a table and returns nil on success" do
+    it 'deletes a table and returns nil on success' do
       result = subject.delete_table(table_name)
       _(result).must_be_nil
 
@@ -40,9 +41,9 @@ describe Azure::Storage::Table::TableService do
       tables.wont_include table_name
     end
 
-    it "errors on an invalid table" do
+    it 'errors on an invalid table' do
       assert_raises(Azure::Core::Http::HTTPError) do
-        subject.delete_table "this_table.cannot-exist!"
+        subject.delete_table 'this_table.cannot-exist!'
       end
     end
   end

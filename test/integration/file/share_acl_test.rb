@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,28 +23,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::File::FileService do
   subject { Azure::Storage::File::FileService.create(SERVICE_CREATE_OPTIONS()) }
   after { ShareNameHelper.clean }
 
-  describe "#set/get_share_acl" do
+  describe '#set/get_share_acl' do
     let(:share_name) { ShareNameHelper.name }
     let(:public_access_level) { :share.to_s }
     let(:identifiers) {
       identifier = Azure::Storage::Common::Service::SignedIdentifier.new
-      identifier.id = "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI="
-      identifier.access_policy.start = "2009-09-28T08:49:37.0000000Z"
-      identifier.access_policy.expiry = "2009-09-29T08:49:37.0000000Z"
-      identifier.access_policy.permission = "rwd"
+      identifier.id = 'MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI='
+      identifier.access_policy.start = '2009-09-28T08:49:37.0000000Z'
+      identifier.access_policy.expiry = '2009-09-29T08:49:37.0000000Z'
+      identifier.access_policy.permission = 'rwd'
       [identifier]
     }
-    before {
+    before do
       subject.create_share share_name
-    }
+    end
 
-    it "sets and gets the ACL for the share" do
+    it 'sets and gets the ACL for the share' do
       share, acl = subject.set_share_acl share_name, signed_identifiers: identifiers
       _(share).wont_be_nil
       _(share.name).must_equal share_name
@@ -63,12 +64,12 @@ describe Azure::Storage::File::FileService do
       _(acl.first.access_policy.permission).must_equal identifiers.first.access_policy.permission
     end
 
-    it "errors if the share does not exist" do
+    it 'errors if the share does not exist' do
       assert_raises(Azure::Core::Http::HTTPError) do
         subject.get_share_acl FileNameHelper.name
       end
       assert_raises(Azure::Core::Http::HTTPError) do
-        subject.set_share_acl FileNameHelper.name, identifiers: identifiers
+        subject.set_share_acl FileNameHelper.name, identifiers:
       end
     end
   end

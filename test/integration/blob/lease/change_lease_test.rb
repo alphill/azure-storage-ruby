@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,22 +23,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/storage/blob/blob_service"
+require 'integration/test_helper'
+require 'azure/storage/blob/blob_service'
 
 describe Azure::Storage::Blob::BlobService do
   subject { Azure::Storage::Blob::BlobService.create(SERVICE_CREATE_OPTIONS()) }
 
-  describe "#change_lease" do
+  describe '#change_lease' do
     let(:container_name) { ContainerNameHelper.name }
-    let(:porposed_lease_id) { "4137EAD7-795F-4FB0-8AD3-425266A4357B".downcase }
-    let(:blob_name) { "blobname" }
+    let(:porposed_lease_id) { '4137EAD7-795F-4FB0-8AD3-425266A4357B'.downcase }
+    let(:blob_name) { 'blobname' }
     let(:length) { 1024 }
-    before {
+    before do
       subject.create_container container_name
-    }
+    end
 
-    it "should be possible to change a container lease" do
+    it 'should be possible to change a container lease' do
       lease_id = subject.acquire_container_lease container_name
       _(lease_id).wont_be_nil
 
@@ -48,7 +49,7 @@ describe Azure::Storage::Blob::BlobService do
       _(new_lease_id).must_equal porposed_lease_id
     end
 
-    it "should be possible to change a blob lease" do
+    it 'should be possible to change a blob lease' do
       subject.create_page_blob container_name, blob_name, length
 
       lease_id = subject.acquire_blob_lease container_name, blob_name

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,32 +23,32 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::Queue::QueueService do
   subject { Azure::Storage::Queue::QueueService.create(SERVICE_CREATE_OPTIONS()) }
 
-  describe "#delete_queue" do
+  describe '#delete_queue' do
     let(:queue_name) { QueueNameHelper.name }
     before { subject.create_queue queue_name }
     after { QueueNameHelper.clean }
 
-    it "deletes a queue and returns nil on success" do
+    it 'deletes a queue and returns nil on success' do
       result = subject.delete_queue(queue_name)
       _(result).must_be_nil
       result = subject.list_queues
       result.each { |q| q.name.wont_equal queue_name }
     end
 
-    it "errors on an non-existent queue" do
+    it 'errors on an non-existent queue' do
       assert_raises(Azure::Core::Http::HTTPError) do
         subject.delete_queue QueueNameHelper.name
       end
     end
 
-    it "errors on an invalid queue" do
+    it 'errors on an invalid queue' do
       assert_raises(Azure::Core::Http::HTTPError) do
-        subject.delete_queue "this_queue.cannot-exist!"
+        subject.delete_queue 'this_queue.cannot-exist!'
       end
     end
   end

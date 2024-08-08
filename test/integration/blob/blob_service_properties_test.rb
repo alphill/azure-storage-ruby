@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,14 +23,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/storage/blob/blob_service"
+require 'integration/test_helper'
+require 'azure/storage/blob/blob_service'
 
 describe Azure::Storage::Blob::BlobService do
   subject { Azure::Storage::Blob::BlobService.create(SERVICE_CREATE_OPTIONS()) }
 
-  describe "#set_service_properties" do
-    it "sets the service properties without version" do
+  describe '#set_service_properties' do
+    it 'sets the service properties without version' do
       properties = Azure::Storage::Common::Service::StorageServiceProperties.new
       properties.logging.delete = true
       properties.logging.read = true
@@ -46,14 +47,14 @@ describe Azure::Storage::Blob::BlobService do
       _(result).must_be_nil
     end
 
-    it "sets the service properties use default values" do
-     properties = Azure::Storage::Common::Service::StorageServiceProperties.new
-     result = subject.set_service_properties properties
-     _(result).must_be_nil
-   end
+    it 'sets the service properties use default values' do
+      properties = Azure::Storage::Common::Service::StorageServiceProperties.new
+      result = subject.set_service_properties properties
+      _(result).must_be_nil
+    end
 
-    describe "#set_service_properties with logging" do
-      it "with retention" do
+    describe '#set_service_properties with logging' do
+      it 'with retention' do
         properties = Azure::Storage::Common::Service::StorageServiceProperties.new
         properties.logging.delete = true
         properties.logging.read = true
@@ -65,7 +66,7 @@ describe Azure::Storage::Blob::BlobService do
         _(result).must_be_nil
       end
 
-      it "without retention" do
+      it 'without retention' do
         properties = Azure::Storage::Common::Service::StorageServiceProperties.new
         properties.logging.delete = false
         properties.logging.read = true
@@ -78,8 +79,8 @@ describe Azure::Storage::Blob::BlobService do
       end
     end
 
-    describe "#set_service_properties with metrics" do
-      it "with hour metrics" do
+    describe '#set_service_properties with metrics' do
+      it 'with hour metrics' do
         properties = Azure::Storage::Common::Service::StorageServiceProperties.new
         properties.hour_metrics.enabled = true
         properties.hour_metrics.include_apis = true
@@ -90,7 +91,7 @@ describe Azure::Storage::Blob::BlobService do
         _(result).must_be_nil
       end
 
-      it "with minuite metrics" do
+      it 'with minuite metrics' do
         properties = Azure::Storage::Common::Service::StorageServiceProperties.new
         properties.minute_metrics.enabled = true
         properties.minute_metrics.include_apis = false
@@ -101,7 +102,7 @@ describe Azure::Storage::Blob::BlobService do
         _(result).must_be_nil
       end
 
-      it "without retention" do
+      it 'without retention' do
         properties = Azure::Storage::Common::Service::StorageServiceProperties.new
         properties.hour_metrics.enabled = true
         properties.hour_metrics.include_apis = false
@@ -117,19 +118,19 @@ describe Azure::Storage::Blob::BlobService do
       end
     end
 
-    describe "#set_service_properties with CORS" do
+    describe '#set_service_properties with CORS' do
       let(:cors_properties) { Azure::Storage::Common::Service::StorageServiceProperties.new }
       let(:cors_rule) { Azure::Storage::Common::Service::CorsRule.new }
-      before {
+      before do
         cors_properties.cors.cors_rules.clear
-        cors_rule.allowed_origins = ["www.ab.com", "www.bc.com"]
-        cors_rule.allowed_methods = ["GET", "PUT"]
+        cors_rule.allowed_origins = ['www.ab.com', 'www.bc.com']
+        cors_rule.allowed_methods = ['GET', 'PUT']
         cors_rule.max_age_in_seconds = 60
-        cors_rule.exposed_headers = ["x-ms-meta-data*", "x-ms-meta-source*", "x-ms-meta-abc", "x-ms-meta-bcd"]
-        cors_rule.allowed_headers = ["x-ms-meta-data*", "x-ms-meta-target*", "x-ms-meta-xyz", "x-ms-meta-foo"]
-      }
+        cors_rule.exposed_headers = ['x-ms-meta-data*', 'x-ms-meta-source*', 'x-ms-meta-abc', 'x-ms-meta-bcd']
+        cors_rule.allowed_headers = ['x-ms-meta-data*', 'x-ms-meta-target*', 'x-ms-meta-xyz', 'x-ms-meta-foo']
+      end
 
-      it "nil CORS" do
+      it 'nil CORS' do
         properties = Azure::Storage::Common::Service::StorageServiceProperties.new
         properties.cors = Azure::Storage::Common::Service::Cors.new
 
@@ -137,14 +138,14 @@ describe Azure::Storage::Blob::BlobService do
         _(result).must_be_nil
       end
 
-      it "sets CORS rules" do
+      it 'sets CORS rules' do
         cors_properties.cors.cors_rules.push cors_rule
 
         result = subject.set_service_properties cors_properties
         _(result).must_be_nil
       end
 
-      it "sets CORS with duplicated rules" do
+      it 'sets CORS with duplicated rules' do
         cors_properties.cors.cors_rules.push cors_rule
         cors_properties.cors.cors_rules.push cors_rule
 
@@ -152,57 +153,57 @@ describe Azure::Storage::Blob::BlobService do
         _(result).must_be_nil
       end
 
-      it "sets CORS rules without allowed_origins" do
-       cors_rule.allowed_origins = nil
-       cors_properties.cors.cors_rules.push cors_rule
+      it 'sets CORS rules without allowed_origins' do
+        cors_rule.allowed_origins = nil
+        cors_properties.cors.cors_rules.push cors_rule
 
-       exception = assert_raises (Azure::Core::Http::HTTPError) do
-         subject.set_service_properties cors_properties
-       end
-       refute_nil(exception.message.index "InvalidXmlDocument (400): XML specified is not syntactically valid")
-     end
+        exception = assert_raises(Azure::Core::Http::HTTPError) do
+          subject.set_service_properties cors_properties
+        end
+        refute_nil(exception.message.index('InvalidXmlDocument (400): XML specified is not syntactically valid'))
+      end
 
-      it "sets CORS rules with empty allowed_origins" do
+      it 'sets CORS rules with empty allowed_origins' do
         cors_rule.allowed_origins = []
         cors_properties.cors.cors_rules.push cors_rule
 
-        exception = assert_raises (Azure::Core::Http::HTTPError) do
+        exception = assert_raises(Azure::Core::Http::HTTPError) do
           subject.set_service_properties cors_properties
         end
-        refute_nil(exception.message.index "InvalidXmlNodeValue (400): The value for one of the XML nodes is not in the correct format")
+        refute_nil(exception.message.index('InvalidXmlNodeValue (400): The value for one of the XML nodes is not in the correct format'))
       end
 
-      it "sets CORS rules without allowed_methods" do
+      it 'sets CORS rules without allowed_methods' do
         cors_rule.allowed_methods = nil
         cors_properties.cors.cors_rules.push cors_rule
 
-        exception = assert_raises (Azure::Core::Http::HTTPError) do
+        exception = assert_raises(Azure::Core::Http::HTTPError) do
           subject.set_service_properties cors_properties
         end
-        refute_nil(exception.message.index "InvalidXmlDocument (400): XML specified is not syntactically valid")
+        refute_nil(exception.message.index('InvalidXmlDocument (400): XML specified is not syntactically valid'))
       end
 
-      it "sets CORS rules with empty allowed_methods" do
+      it 'sets CORS rules with empty allowed_methods' do
         cors_rule.allowed_methods = []
         cors_properties.cors.cors_rules.push cors_rule
 
-        exception = assert_raises (Azure::Core::Http::HTTPError) do
+        exception = assert_raises(Azure::Core::Http::HTTPError) do
           subject.set_service_properties cors_properties
         end
-        refute_nil(exception.message.index "InvalidXmlNodeValue (400): The value for one of the XML nodes is not in the correct format")
+        refute_nil(exception.message.index('InvalidXmlNodeValue (400): The value for one of the XML nodes is not in the correct format'))
       end
 
-      it "sets CORS rules without exposed_headers" do
+      it 'sets CORS rules without exposed_headers' do
         cors_rule.exposed_headers = nil
         cors_properties.cors.cors_rules.push cors_rule
 
-        exception = assert_raises (Azure::Core::Http::HTTPError) do
+        exception = assert_raises(Azure::Core::Http::HTTPError) do
           subject.set_service_properties cors_properties
         end
-        refute_nil(exception.message.index "InvalidXmlDocument (400): XML specified is not syntactically valid")
+        refute_nil(exception.message.index('InvalidXmlDocument (400): XML specified is not syntactically valid'))
       end
 
-      it "sets CORS rules with empty exposed_headers" do
+      it 'sets CORS rules with empty exposed_headers' do
         cors_rule.exposed_headers = []
         cors_properties.cors.cors_rules.push cors_rule
 
@@ -210,17 +211,17 @@ describe Azure::Storage::Blob::BlobService do
         _(result).must_be_nil
       end
 
-      it "sets CORS rules without allowed_headers" do
+      it 'sets CORS rules without allowed_headers' do
         cors_rule.allowed_headers = nil
         cors_properties.cors.cors_rules.push cors_rule
 
-        exception = assert_raises (Azure::Core::Http::HTTPError) do
+        exception = assert_raises(Azure::Core::Http::HTTPError) do
           subject.set_service_properties cors_properties
         end
-        refute_nil(exception.message.index "InvalidXmlDocument (400): XML specified is not syntactically valid")
+        refute_nil(exception.message.index('InvalidXmlDocument (400): XML specified is not syntactically valid'))
       end
 
-      it "sets CORS rules with default allowed_headers" do
+      it 'sets CORS rules with default allowed_headers' do
         cors_rule.allowed_headers = []
         cors_properties.cors.cors_rules.push cors_rule
 
@@ -230,8 +231,8 @@ describe Azure::Storage::Blob::BlobService do
     end
   end
 
-  describe "#get_service_properties" do
-    it "gets service properties" do
+  describe '#get_service_properties' do
+    it 'gets service properties' do
       properties = Azure::Storage::Common::Service::StorageServiceProperties.new
       properties.logging.delete = false
       properties.logging.read = true
@@ -250,11 +251,11 @@ describe Azure::Storage::Blob::BlobService do
 
       properties.cors = Azure::Storage::Common::Service::Cors.new
       rule = Azure::Storage::Common::Service::CorsRule.new
-      rule.allowed_origins = ["www.cd.com", "www.ef.com"]
-      rule.allowed_methods = ["GET", "PUT"]
+      rule.allowed_origins = ['www.cd.com', 'www.ef.com']
+      rule.allowed_methods = ['GET', 'PUT']
       rule.max_age_in_seconds = 20
-      rule.exposed_headers = ["x-ms-meta-data*", "x-ms-meta-abc"]
-      rule.allowed_headers = ["x-ms-meta-target*", "x-ms-meta-xyz"]
+      rule.exposed_headers = ['x-ms-meta-data*', 'x-ms-meta-abc']
+      rule.allowed_headers = ['x-ms-meta-target*', 'x-ms-meta-xyz']
       properties.cors.cors_rules.push rule
 
       result = subject.set_service_properties properties
@@ -263,32 +264,32 @@ describe Azure::Storage::Blob::BlobService do
 
       result = subject.get_service_properties
       _(result.logging).wont_be_nil
-      _(result.logging.version).must_equal "1.0"
+      _(result.logging.version).must_equal '1.0'
       result.logging.delete = false
       result.logging.read = true
       result.logging.write = true
       _(result.logging.retention_policy.enabled).must_equal true
       _(result.logging.retention_policy.days).must_equal 2
 
-      _(result.hour_metrics.version).must_equal "1.0"
+      _(result.hour_metrics.version).must_equal '1.0'
       _(result.hour_metrics.enabled).must_equal true
       _(result.hour_metrics.retention_policy.enabled).must_equal false
 
-      _(result.minute_metrics.version).must_equal "1.0"
+      _(result.minute_metrics.version).must_equal '1.0'
       _(result.minute_metrics.enabled).must_equal true
       _(result.minute_metrics.include_apis).must_equal true
       _(result.minute_metrics.retention_policy.enabled).must_equal true
       _(result.minute_metrics.retention_policy.days).must_equal 4
 
       _(result.cors.cors_rules.length).must_equal 1
-      _(result.cors.cors_rules[0].allowed_origins).must_include "www.cd.com"
-      _(result.cors.cors_rules[0].allowed_origins).must_include "www.ef.com"
-      _(result.cors.cors_rules[0].allowed_methods).must_include "GET"
-      _(result.cors.cors_rules[0].allowed_methods).must_include "PUT"
-      _(result.cors.cors_rules[0].exposed_headers).must_include "x-ms-meta-data*"
-      _(result.cors.cors_rules[0].exposed_headers).must_include "x-ms-meta-abc"
-      _(result.cors.cors_rules[0].allowed_headers).must_include "x-ms-meta-target*"
-      _(result.cors.cors_rules[0].allowed_headers).must_include "x-ms-meta-xyz"
+      _(result.cors.cors_rules[0].allowed_origins).must_include 'www.cd.com'
+      _(result.cors.cors_rules[0].allowed_origins).must_include 'www.ef.com'
+      _(result.cors.cors_rules[0].allowed_methods).must_include 'GET'
+      _(result.cors.cors_rules[0].allowed_methods).must_include 'PUT'
+      _(result.cors.cors_rules[0].exposed_headers).must_include 'x-ms-meta-data*'
+      _(result.cors.cors_rules[0].exposed_headers).must_include 'x-ms-meta-abc'
+      _(result.cors.cors_rules[0].allowed_headers).must_include 'x-ms-meta-target*'
+      _(result.cors.cors_rules[0].allowed_headers).must_include 'x-ms-meta-xyz'
       _(result.cors.cors_rules[0].max_age_in_seconds).must_equal rule.max_age_in_seconds
     end
   end

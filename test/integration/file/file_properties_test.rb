@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,32 +23,34 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::File::FileService do
   subject { Azure::Storage::File::FileService.create(SERVICE_CREATE_OPTIONS()) }
   after { ShareNameHelper.clean }
 
-  describe "#set/get_file_properties" do
+  describe '#set/get_file_properties' do
     let(:share_name) { ShareNameHelper.name }
     let(:directory_name) { FileNameHelper.name }
     let(:file_name) { FileNameHelper.name }
     let(:file_length) { 1024 }
-    before {
+    before do
       subject.create_share share_name
       subject.create_directory share_name, directory_name
       subject.create_file share_name, directory_name, file_name, file_length
+    end
+    let(:options) {
+      {
+        content_type: 'application/my-special-format',
+        content_encoding: 'gzip',
+        content_language: 'klingon',
+        content_md5: '5e1f7f9c28345d2b',
+        content_disposition: 'attachment',
+        cache_control: 'max-age=1296000'
+      }
     }
-    let(:options) { {
-      content_type: "application/my-special-format",
-      content_encoding: "gzip",
-      content_language: "klingon",
-      content_md5: "5e1f7f9c28345d2b",
-      content_disposition: "attachment",
-      cache_control: "max-age=1296000",
-    }}
 
-    it "sets and gets properties for a file" do
+    it 'sets and gets properties for a file' do
       result = subject.set_file_properties share_name, directory_name, file_name, options
       _(result).must_be_nil
       file = subject.get_file_properties share_name, directory_name, file_name
@@ -58,14 +61,14 @@ describe Azure::Storage::File::FileService do
       _(file.properties[:content_disposition]).must_equal options[:content_disposition]
     end
 
-    it "resize a file" do
+    it 'resize a file' do
       result = subject.resize_file share_name, directory_name, file_name, file_length + file_length
       _(result).must_be_nil
       file = subject.get_file_properties share_name, directory_name, file_name
       _(file.properties[:content_length]).must_equal file_length * 2
     end
 
-    it "resize a file should not change other properties" do
+    it 'resize a file should not change other properties' do
       result = subject.set_file_properties share_name, directory_name, file_name, options
       _(result).must_be_nil
 
@@ -80,12 +83,12 @@ describe Azure::Storage::File::FileService do
       _(file.properties[:content_disposition]).must_equal options[:content_disposition]
     end
 
-    it "errors if the file name does not exist" do
+    it 'errors if the file name does not exist' do
       assert_raises(Azure::Core::Http::HTTPError) do
-        subject.get_file_properties share_name, directory_name, "thisfiledoesnotexist"
+        subject.get_file_properties share_name, directory_name, 'thisfiledoesnotexist'
       end
       assert_raises(Azure::Core::Http::HTTPError) do
-        subject.get_file_properties share_name, directory_name, "thisfiledoesnotexist", options
+        subject.get_file_properties share_name, directory_name, 'thisfiledoesnotexist', options
       end
     end
   end

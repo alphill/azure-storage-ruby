@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,27 +23,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/storage/blob"
-require "azure/storage/common"
+require 'integration/test_helper'
+require 'azure/storage/blob'
+require 'azure/storage/common'
 
 describe Azure::Storage::Blob::BlobService do
   subject { Azure::Storage::Blob::BlobService.create(SERVICE_CREATE_OPTIONS()) }
 
   let(:public_access_level) { :container.to_s }
-  let(:content) { content = ""; 512.times.each { |i| content << "@" }; content }
-  let(:blob_endpoint) { "blob.core.windows.net" }
-  let(:schema) { "https" }
+  let(:content) {
+    content = ''
+    512.times.each { |_i| content << '@' }
+    content
+  }
+  let(:blob_endpoint) { 'blob.core.windows.net' }
+  let(:schema) { 'https' }
   let(:storage_account_name) {}
   let(:storage_access_key) {}
 
   after { ContainerNameHelper.clean }
 
-  describe "test anonymous access" do
-    let(:blob_host) { schema + "://" + subject.account_name + "." + blob_endpoint }
+  describe 'test anonymous access' do
+    let(:blob_host) { schema + '://' + subject.account_name + '.' + blob_endpoint }
     let(:anonymous_blob_client) { Azure::Storage::Blob::BlobService.create(storage_blob_host: blob_host) }
 
-    it "test anonymous access for public container works" do
+    it 'test anonymous access for public container works' do
       container_name = ContainerNameHelper.name
       blob_name = BlobNameHelper.name
       subject.create_container container_name
@@ -55,21 +60,21 @@ describe Azure::Storage::Blob::BlobService do
       _(body).must_equal content
     end
 
-    it "test anonymous access for private container does not work" do
+    it 'test anonymous access for private container does not work' do
       container_name = ContainerNameHelper.name
       blob_name = BlobNameHelper.name
       subject.create_container container_name
       subject.create_block_blob container_name, blob_name, content
-      status_code = ""
-      description = ""
+      status_code = ''
+      description = ''
       begin
         result = anonymous_blob_client.list_blobs container_name
       rescue Azure::Core::Http::HTTPError => e
         status_code = e.status_code.to_s
         description = e.description
       end
-      _(status_code).must_equal "404"
-      _(description).must_include "The specified resource does not exist."
+      _(status_code).must_equal '404'
+      _(description).must_include 'The specified resource does not exist.'
     end
   end
 end

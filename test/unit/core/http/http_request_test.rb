@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -20,9 +21,9 @@ describe Azure::Core::Http::HttpRequest do
   let(:uri) { URI('http://example.com') }
 
   describe ' default_headers ' do
-    subject do
+    subject {
       Azure::Core::Http::HttpRequest.new(:get, uri, body: nil, current_time: 'Thu, 04 Oct 2012 06:38:27 GMT')
-    end
+    }
 
     it 'sets the x-ms-date header to the current_time' do
       subject.headers['x-ms-date'] = 'Thu, 04 Oct 2012 06:38:27 GMT'
@@ -42,15 +43,17 @@ describe Azure::Core::Http::HttpRequest do
   end
 
   describe 'when passed custom headers' do
-    subject do
-      Azure::Core::Http::HttpRequest.new(:get,
-                                         uri,
-                                         body: nil,
-                                         headers: {
-                                             'blah' => 'something',
-                                             'x-ms-version' => '123'
-                                         })
-    end
+    subject {
+      Azure::Core::Http::HttpRequest.new(
+        :get,
+        uri,
+        body: nil,
+        headers: {
+          'blah' => 'something',
+          'x-ms-version' => '123'
+        }
+      )
+    }
 
     it 'should have overridden the value of x-ms-version' do
       _(subject.headers['x-ms-version']).must_equal '123'
@@ -59,15 +62,14 @@ describe Azure::Core::Http::HttpRequest do
     it 'should have added in the blah = something header' do
       _(subject.headers['blah']).must_equal 'something'
     end
-
   end
 
   describe ' when passed a body ' do
-    describe " of type IO" do
-      subject do
-        file = File.open(File.expand_path("../../../../fixtures/files/test.png", __FILE__))
+    describe ' of type IO' do
+      subject {
+        file = File.open(File.expand_path('../../../fixtures/files/test.png', __dir__))
         Azure::Core::Http::HttpRequest.new(:post, uri, body: file)
-      end
+      }
 
       it 'sets the default Content-Type header' do
         _(subject.headers['Content-Type']).must_equal 'application/atom+xml; charset=utf-8'
@@ -83,13 +85,13 @@ describe Azure::Core::Http::HttpRequest do
     end
 
     describe 'of type Tempfile' do
-      subject do
+      subject {
         tempfile = Tempfile.open('azure')
-        file = File.open(File.expand_path('../../../../fixtures/files/test.png', __FILE__))
+        file = File.open(File.expand_path('../../../fixtures/files/test.png', __dir__))
         IO.copy_stream(file, tempfile)
 
         Azure::Core::Http::HttpRequest.new(:post, uri, body: tempfile)
-      end
+      }
 
       it 'sets the default Content-Type header' do
         _(subject.headers['Content-Type']).must_equal 'application/atom+xml; charset=utf-8'
@@ -105,9 +107,9 @@ describe Azure::Core::Http::HttpRequest do
     end
 
     describe ' of type StringIO' do
-      subject do
+      subject {
         Azure::Core::Http::HttpRequest.new(:post, uri, body: StringIO.new('<body/>'))
-      end
+      }
 
       it 'sets the default Content-Type header' do
         _(subject.headers['Content-Type']).must_equal 'application/atom+xml; charset=utf-8'
@@ -122,11 +124,10 @@ describe Azure::Core::Http::HttpRequest do
       end
     end
 
-
     describe ' of type String' do
-      subject do
+      subject {
         Azure::Core::Http::HttpRequest.new(:post, uri, body: '<body/>')
-      end
+      }
 
       it 'sets the default Content-Type header' do
         _(subject.headers['Content-Type']).must_equal 'application/atom+xml; charset=utf-8'
@@ -143,37 +144,36 @@ describe Azure::Core::Http::HttpRequest do
   end
 
   describe ' when the body is nil ' do
-    subject do
+    subject {
       Azure::Core::Http::HttpRequest.new(:get, uri)
-    end
+    }
 
     it { _(subject.headers['Content-Length']).must_equal '0' }
     it { assert_nil(subject.headers['Content-MD5']) }
   end
 
   describe '#call' do
-
-    let(:mock_conn) do
+    let(:mock_conn) {
       conn = mock
       conn.expects(:run_request, [uri, nil, nil]).returns(mock_res)
       conn
-    end
+    }
 
-    subject do
+    subject {
       sub = Azure::Core::Http::HttpRequest.new(:get, uri)
       sub.expects(:http_setup).returns(mock_conn)
       sub
-    end
+    }
 
     describe 'on success' do
       let(:body) { '</body>' }
 
-      let(:mock_res) do
+      let(:mock_res) {
         res = mock
         res.expects(:success?).returns(true)
         res.expects(:body).returns(body)
         res
-      end
+      }
 
       it 'should return a response' do
         _(subject.call.body).must_equal(body)
@@ -183,17 +183,17 @@ describe Azure::Core::Http::HttpRequest do
     describe 'on failure' do
       let(:body) { 'OH NO!!' }
 
-      let(:mock_res) do
+      let(:mock_res) {
         res = mock
         res.expects(:success?).returns(false).at_least_once
         res.expects(:status).returns(401).at_least_once
         res.expects(:body).returns(body).at_least_once
         res.expects(:headers).returns({}).at_least_once
         res
-      end
+      }
 
       it 'should return a response' do
-       _{ subject.call }.must_raise(Azure::Core::Http::HTTPError)
+        _ { subject.call }.must_raise(Azure::Core::Http::HTTPError)
       end
     end
   end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,28 +23,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::Queue::QueueService do
   subject { Azure::Storage::Queue::QueueService.create(SERVICE_CREATE_OPTIONS()) }
-  describe "#set/get_queue_metadata" do
+  describe '#set/get_queue_metadata' do
     let(:queue_name) { QueueNameHelper.name }
-    before {
+    before do
       subject.create_queue queue_name
-      subject.create_message queue_name, "some random text " + QueueNameHelper.name
-    }
+      subject.create_message queue_name, 'some random text ' + QueueNameHelper.name
+    end
     after { QueueNameHelper.clean }
 
-    it "can set and retrieve queue metadata" do
-      result = subject.set_queue_metadata queue_name, "CustomMetadataProperty" => "Custom Metadata Value"
+    it 'can set and retrieve queue metadata' do
+      result = subject.set_queue_metadata queue_name, 'CustomMetadataProperty' => 'Custom Metadata Value'
       _(result).must_be_nil
 
       message_count, metadata = subject.get_queue_metadata queue_name
       _(message_count).must_equal 1
 
-      # note: case insensitive! even though it was sent in mixed case, it will be returned in downcase
-      _(metadata).must_include "custommetadataproperty"
-      _(metadata["custommetadataproperty"]).must_equal "Custom Metadata Value"
+      # NOTE: case insensitive! even though it was sent in mixed case, it will be returned in downcase
+      _(metadata).must_include 'custommetadataproperty'
+      _(metadata['custommetadataproperty']).must_equal 'Custom Metadata Value'
     end
   end
 end

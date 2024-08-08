@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,37 +23,37 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::File::FileService do
-  let(:user_agent_prefix) { "azure_storage_ruby_integration_test" }
+  let(:user_agent_prefix) { 'azure_storage_ruby_integration_test' }
   subject {
-    Azure::Storage::File::FileService.create(SERVICE_CREATE_OPTIONS()) { |headers|
-      headers["User-Agent"] = "#{user_agent_prefix}; #{headers['User-Agent']}"
-    }
+    Azure::Storage::File::FileService.create(SERVICE_CREATE_OPTIONS()) do |headers|
+      headers['User-Agent'] = "#{user_agent_prefix}; #{headers['User-Agent']}"
+    end
   }
   after { ShareNameHelper.clean }
 
-  describe "#set/get_share_metadata" do
+  describe '#set/get_share_metadata' do
     let(:share_name) { ShareNameHelper.name }
-    let(:metadata) { { "CustomMetadataProperty" => "CustomMetadataValue" } }
-    before {
+    let(:metadata) { { 'CustomMetadataProperty' => 'CustomMetadataValue' } }
+    before do
       subject.create_share share_name
-    }
+    end
 
-    it "sets and gets custom metadata for the share" do
+    it 'sets and gets custom metadata for the share' do
       result = subject.set_share_metadata share_name, metadata
       _(result).must_be_nil
       share = subject.get_share_metadata share_name
       _(share).wont_be_nil
       _(share.name).must_equal share_name
-      metadata.each { |k, v|
+      metadata.each do |k, v|
         _(share.metadata).must_include k.downcase
         _(share.metadata[k.downcase]).must_equal v
-      }
+      end
     end
 
-    it "errors if the share does not exist" do
+    it 'errors if the share does not exist' do
       assert_raises(Azure::Core::Http::HTTPError) do
         subject.get_share_metadata FileNameHelper.name
       end

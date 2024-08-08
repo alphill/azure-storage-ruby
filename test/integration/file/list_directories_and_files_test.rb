@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,140 +23,140 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::File::FileService do
   subject { Azure::Storage::File::FileService.create(SERVICE_CREATE_OPTIONS()) }
   after { ShareNameHelper.clean }
 
-  describe "#list_directories" do
+  describe '#list_directories' do
     let(:share_name) { ShareNameHelper.name }
     let(:prefix) { FileNameHelper.name }
     let(:directories_names) { [prefix + FileNameHelper.name, prefix + FileNameHelper.name, FileNameHelper.name] }
     let(:sub_directories_names) { [FileNameHelper.name, FileNameHelper.name, FileNameHelper.name] }
-    let(:metadata) { { "CustomMetadataProperty" => "CustomMetadataValue" } }
-    before {
-      subject.create_share share_name, metadata: metadata
-      directories_names.each { |directory_name|
-        subject.create_directory share_name, directory_name, metadata: metadata
+    let(:metadata) { { 'CustomMetadataProperty' => 'CustomMetadataValue' } }
+    before do
+      subject.create_share(share_name, metadata:)
+      directories_names.each do |directory_name|
+        subject.create_directory(share_name, directory_name, metadata:)
 
-        sub_directories_names.each { |sub_directory_name|
-          sub_directory_path = ::File.join(directory_name, sub_directory_name)
-          subject.create_directory share_name, sub_directory_path, metadata: metadata
-        }
-      }
-    }
+        sub_directories_names.each do |sub_directory_name|
+          sub_directory_path = File.join(directory_name, sub_directory_name)
+          subject.create_directory share_name, sub_directory_path, metadata:
+        end
+      end
+    end
 
-    it "lists the level_1 directories for the account" do
+    it 'lists the level_1 directories for the account' do
       result = subject.list_directories_and_files share_name, nil
       found = 0
-      result.each { |directory|
+      result.each do |directory|
         found += 1 if directories_names.include? directory.name
-      }
+      end
       _(found).must_equal directories_names.length
     end
 
-    it "lists the level_2 directories for the account" do
+    it 'lists the level_2 directories for the account' do
       result = subject.list_directories_and_files share_name, nil
       found = 0
-      result.each { |directory|
+      result.each do |directory|
         found += 1 if directories_names.include? directory.name
 
         sub_result =  subject.list_directories_and_files share_name, directory.name
-        sub_result.each { |sub_directory_path|
+        sub_result.each do |_sub_directory_path|
           found += 1
-        }
-      }
-      _(found).must_equal directories_names.length + directories_names.length * sub_directories_names.length
+        end
+      end
+      _(found).must_equal directories_names.length + (directories_names.length * sub_directories_names.length)
     end
 
-    it "lists the shares for the account with max results" do
+    it 'lists the shares for the account with max results' do
       result = subject.list_directories_and_files(share_name, nil, max_results: 1)
       _(result.length).must_equal 1
       first_directory = result[0]
-      result.continuation_token.wont_equal ""
+      result.continuation_token.wont_equal ''
 
       result = subject.list_directories_and_files(share_name, nil, max_results: 2, marker: result.continuation_token)
       _(result.length).must_equal 2
       result[0].name.wont_equal first_directory.name
     end
 
-    it "lists directories with the prefix" do
-      result = subject.list_directories_and_files share_name, nil, prefix: prefix
+    it 'lists directories with the prefix' do
+      result = subject.list_directories_and_files(share_name, nil, prefix:)
       found = 0
-      result.each { |directory|
+      result.each do |directory|
         found += 1 if directories_names.include? directory.name
-      }
+      end
       count = 0
-      directories_names.each { |name|
+      directories_names.each do |name|
         count += 1 if name.start_with? prefix
-      }
+      end
       _(found).must_equal count
     end
 
     it "lists directories with the directory's name as prefix" do
       result = subject.list_directories_and_files(share_name, nil, prefix: directories_names[0])
       _(result.length).must_equal 1
-      _(result.continuation_token).must_equal ""
+      _(result.continuation_token).must_equal ''
       _(result[0].name).must_equal directories_names[0]
     end
 
-    it "lists directories with a prefix that does not exist" do
-      result = subject.list_directories_and_files(share_name, nil, prefix: directories_names[0] + "nonexistsuffix")
+    it 'lists directories with a prefix that does not exist' do
+      result = subject.list_directories_and_files(share_name, nil, prefix: directories_names[0] + 'nonexistsuffix')
       _(result.length).must_equal 0
-      _(result.continuation_token).must_equal ""
+      _(result.continuation_token).must_equal ''
     end
   end
 
-  describe "#list_directories_and_files" do
+  describe '#list_directories_and_files' do
     let(:share_name) { FileNameHelper.name }
     let(:prefix) { FileNameHelper.name }
     let(:directories_names) { [FileNameHelper.name, FileNameHelper.name, FileNameHelper.name] }
     let(:sub_directories_names) { [FileNameHelper.name, FileNameHelper.name, FileNameHelper.name] }
     let(:file_names) { [prefix + FileNameHelper.name, prefix + FileNameHelper.name, FileNameHelper.name] }
     let(:file_length) { 1024 }
-    let(:metadata) { { "CustomMetadataProperty" => "CustomMetadataValue" } }
-    before {
-      subject.create_share share_name, metadata: metadata
-      directories_names.each { |directory_name|
+    let(:metadata) { { 'CustomMetadataProperty' => 'CustomMetadataValue' } }
+    before do
+      subject.create_share(share_name, metadata:)
+      directories_names.each do |directory_name|
         # Create level 1 directories
-        subject.create_directory share_name, directory_name, metadata: metadata
+        subject.create_directory(share_name, directory_name, metadata:)
 
         # Create level 1 files
-        file_names.each { |file_name|
-          subject.create_file share_name, directory_name, file_name, file_length, metadata: metadata
-        }
+        file_names.each do |file_name|
+          subject.create_file share_name, directory_name, file_name, file_length, metadata:
+        end
 
         # Create level 2 directories
-        sub_directories_names.each { |sub_directory_name|
-          sub_directory_path = ::File.join(directory_name, sub_directory_name)
-          subject.create_directory share_name, sub_directory_path, metadata: metadata
-        }
-      }
-    }
+        sub_directories_names.each do |sub_directory_name|
+          sub_directory_path = File.join(directory_name, sub_directory_name)
+          subject.create_directory share_name, sub_directory_path, metadata:
+        end
+      end
+    end
 
-    it "lists the level_2 directories and files for the account" do
+    it 'lists the level_2 directories and files for the account' do
       result = subject.list_directories_and_files share_name, directories_names[0]
       directory_found = 0
       file_found = 0
-      result.each { |entry|
+      result.each do |entry|
         directory_found += 1 if sub_directories_names.include?(entry.name) && entry.is_a?(Azure::Storage::File::Directory::Directory)
         file_found += 1 if file_names.include?(entry.name) && entry.is_a?(Azure::Storage::File::File)
-      }
+      end
       _(directory_found).must_equal sub_directories_names.length
       _(file_found).must_equal file_names.length
     end
 
-    it "lists the files with prefix" do
-      result = subject.list_directories_and_files share_name, directories_names[0], prefix: prefix
+    it 'lists the files with prefix' do
+      result = subject.list_directories_and_files(share_name, directories_names[0], prefix:)
       found = 0
-      result.each { |file|
+      result.each do |file|
         found += 1 if file_names.include? file.name
-      }
+      end
       count = 0
-      file_names.each { |name|
+      file_names.each do |name|
         count += 1 if name.start_with? prefix
-      }
+      end
       _(found).must_equal count
     end
   end

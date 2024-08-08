@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,41 +23,41 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "azure/core/http/http_error"
-require "integration/test_helper"
+require 'azure/core/http/http_error'
+require 'integration/test_helper'
 
 describe Azure::Storage::File::FileService do
   subject { Azure::Storage::File::FileService.create(SERVICE_CREATE_OPTIONS()) }
   after { ShareNameHelper.clean }
 
-  describe "#create_directory" do
+  describe '#create_directory' do
     let(:share_name) { ShareNameHelper.name }
     let(:directory_name) { FileNameHelper.name }
-    before {
+    before do
       subject.create_share share_name
-    }
+    end
 
-    it "creates the directory" do
+    it 'creates the directory' do
       directory = subject.create_directory share_name, directory_name
       _(directory.name).must_equal directory_name
     end
 
-    it "creates the directory with custom metadata" do
-      metadata = { "CustomMetadataProperty" => "CustomMetadataValue" }
+    it 'creates the directory with custom metadata' do
+      metadata = { 'CustomMetadataProperty' => 'CustomMetadataValue' }
 
-      directory = subject.create_directory share_name, directory_name, metadata: metadata
+      directory = subject.create_directory(share_name, directory_name, metadata:)
 
       _(directory.name).must_equal directory_name
       _(directory.metadata).must_equal metadata
       directory = subject.get_directory_metadata share_name, directory_name
 
-      metadata.each { |k, v|
+      metadata.each do |k, v|
         _(directory.metadata).must_include k.downcase
         _(directory.metadata[k.downcase]).must_equal v
-      }
+      end
     end
 
-    it "errors if the directory already exists" do
+    it 'errors if the directory already exists' do
       subject.create_directory share_name, directory_name
 
       assert_raises(Azure::Core::Http::HTTPError) do
@@ -64,9 +65,9 @@ describe Azure::Storage::File::FileService do
       end
     end
 
-    it "errors if the directory name is invalid" do
+    it 'errors if the directory name is invalid' do
       assert_raises(Azure::Core::Http::HTTPError) do
-        subject.create_directory share_name, "this_directory/cannot/exist!"
+        subject.create_directory share_name, 'this_directory/cannot/exist!'
       end
     end
   end

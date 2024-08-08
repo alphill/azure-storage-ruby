@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,28 +23,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
-require "azure/core/http/http_error"
+require 'integration/test_helper'
+require 'azure/core/http/http_error'
 
 describe Azure::Storage::Table::TableService do
-  describe "#create_table" do
-    let(:user_agent_prefix) { "azure_storage_ruby_integration_test" }
+  describe '#create_table' do
+    let(:user_agent_prefix) { 'azure_storage_ruby_integration_test' }
     subject {
-      Azure::Storage::Table::TableService.create(SERVICE_CREATE_OPTIONS()) { |headers|
-        headers["User-Agent"] = "#{user_agent_prefix}; #{headers['User-Agent']}"
-      }
+      Azure::Storage::Table::TableService.create(SERVICE_CREATE_OPTIONS()) do |headers|
+        headers['User-Agent'] = "#{user_agent_prefix}; #{headers['User-Agent']}"
+      end
     }
     let(:table_name) { TableNameHelper.name }
     after { TableNameHelper.clean }
 
-    it "creates a table with a valid name" do
+    it 'creates a table with a valid name' do
       result = subject.create_table(table_name)
       _(result).must_be_nil
     end
 
-    it "errors on an invalid table name" do
+    it 'errors on an invalid table name' do
       assert_raises(Azure::Core::Http::HTTPError) do
-        subject.create_table "this_table.cannot-exist!"
+        subject.create_table 'this_table.cannot-exist!'
       end
     end
   end

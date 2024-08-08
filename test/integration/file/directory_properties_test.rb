@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #-------------------------------------------------------------------------
 # # Copyright (c) Microsoft and contributors. All rights reserved.
 #
@@ -22,22 +23,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #--------------------------------------------------------------------------
-require "integration/test_helper"
+require 'integration/test_helper'
 
 describe Azure::Storage::File::FileService do
   subject { Azure::Storage::File::FileService.create(SERVICE_CREATE_OPTIONS()) }
   after { ShareNameHelper.clean }
 
-  describe "#get_directory_properties" do
+  describe '#get_directory_properties' do
     let(:share_name) { ShareNameHelper.name }
     let(:directory_name) { FileNameHelper.name }
-    before {
+    before do
       subject.create_share share_name
-    }
-    let(:metadata) { { "CustomMetadataProperty" => "CustomMetadataValue" } }
+    end
+    let(:metadata) { { 'CustomMetadataProperty' => 'CustomMetadataValue' } }
 
-    it "gets properties and custom metadata for the directory" do
-      directory = subject.create_directory share_name, directory_name, metadata: metadata
+    it 'gets properties and custom metadata for the directory' do
+      directory = subject.create_directory(share_name, directory_name, metadata:)
       properties = directory.properties
 
       directory = subject.get_directory_properties share_name, directory_name
@@ -46,13 +47,13 @@ describe Azure::Storage::File::FileService do
       _(directory.properties[:etag]).must_equal properties[:etag]
       _(directory.properties[:last_modified]).must_equal properties[:last_modified]
 
-      metadata.each { |k, v|
+      metadata.each do |k, v|
         _(directory.metadata).must_include k.downcase
         _(directory.metadata[k.downcase]).must_equal v
-      }
+      end
     end
 
-    it "errors if the directory does not exist" do
+    it 'errors if the directory does not exist' do
       assert_raises(Azure::Core::Http::HTTPError) do
         subject.get_directory_properties share_name, FileNameHelper.name
       end
